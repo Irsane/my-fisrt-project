@@ -34,8 +34,8 @@
   }
   .slide.visible { opacity: 1; }
 
-  .slide img { position: relative; width: 100%; height: 100%; object-fit: cover; }
-  .slide video { width: 100%; height: 100%; object-fit: cover; }
+  .slide img { position: relative; width: 100%; height: 100%; object-fit: contain; }
+  .slide video { width: 100%; height: 100%; object-fit: contain; background: #000; }
   /* Дрейф отключён — слайды статичны, ничего не скрывается за движением. */
   .slide.pan img { animation: none !important; transform: none !important; }
 
@@ -118,8 +118,7 @@
   @media (max-width: 600px) {
     :root { --pad: 14px; }
     body { cursor: auto; }
-    /* На телефоне слайд целиком — «поля» сливаются с тёмным фоном сцены. */
-    .slide img { object-fit: contain; }
+    /* На телефоне поля уже сливаются с тёмным фоном сцены. */
     .top { align-items: center; gap: 10px; flex-wrap: nowrap; }
     .logo { padding: 7px 14px 7px 8px; gap: 8px; }
     .logo svg { width: 28px; height: 28px; }
@@ -315,7 +314,13 @@
     } else {
       const v = document.createElement('video');
       v.src = item.url; v.muted = !!CFG.muteVideo; v.playsInline = true; v.preload = 'auto';
-      v.oncanplay = () => onReady(el); v.onerror = onFail;
+      let fired = false;
+      const fire = () => { if (!fired){ fired = true; onReady(el); } };
+      // TV browsers often skip canplay — fire on any of these
+      v.oncanplay = fire;
+      v.onloadeddata = fire;
+      v.onloadedmetadata = () => { if (!fired) setTimeout(fire, 300); };
+      v.onerror = onFail;
       el.appendChild(v);
     }
     return el;
@@ -330,7 +335,7 @@
   function showSlide(item, slot){
     clearAdvance();
     const el = buildSlide(item, (r) => mountSlide(r, item, slot), () => setTimeout(syncTick, 200));
-    el._guard = setTimeout(() => { if (currentSlide !== el){ el.remove(); syncTick(); } }, 12000);
+    el._guard = setTimeout(() => { if (currentSlide !== el){ el.remove(); syncTick(); } }, 5000);
   }
 
   function mountSlide(el, item, slot){
