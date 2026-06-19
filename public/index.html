@@ -259,22 +259,40 @@
   const VOLUME = 0.4; // громкость видео (0..1)
   let soundOn = false;
   const soundHint = document.getElementById('soundhint');
+
+  // Вызывается СИНХРОННО внутри обработчика события — это критично для iOS Safari
   function enableSound(){
     if(soundOn) return;
     soundOn = true;
     if(soundHint) soundHint.classList.add('gone');
-    // включаем звук у текущего видео сразу
-    unmuteCurrent();
+    // Найти текущее видео и сразу запустить со звуком (в стеке жеста)
+    const v = currentSlide && currentSlide.querySelector && currentSlide.querySelector('video');
+    if(v && !CFG.muteVideo){
+      v.muted = false;
+      v.volume = VOLUME;
+      v.play().catch(() => { v.muted = true; v.play().catch(()=>{}); });
+    }
   }
   function unmuteCurrent(){
     if(CFG.muteVideo || !soundOn || !currentSlide) return;
     const v = currentSlide.querySelector && currentSlide.querySelector('video');
     if(v){ v.muted = false; v.volume = VOLUME; v.play().catch(()=>{}); }
   }
-  // любое действие включает звук (один раз достаточно)
-  ['click','touchstart','keydown','pointerdown'].forEach(ev =>
+
+  // Кнопка soundhint: onclick вызывается синхронно — iOS это принимает как жест
+  if(soundHint){
+    soundHint.addEventListener('click', enableSound);
+    soundHint.addEventListener('touchend', function(e){
+      e.preventDefault(); // предотвращаем дублирующий click на iOS
+      enableSound();
+    });
+  }
+
+  // Глобальные слушатели для десктопа (passive:false чтобы iOS не блокировал play в touchstart)
+  ['click','keydown','pointerdown'].forEach(ev =>
     addEventListener(ev, enableSound, { once: false, passive: true })
   );
+  addEventListener('touchstart', enableSound, { once: false, passive: false });
 
   // ── Синхронизация времени ──
   async function syncTime(){
