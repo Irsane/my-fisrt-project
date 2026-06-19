@@ -241,7 +241,7 @@
   'use strict';
 
   const EPOCH = 0;
-  const BUILD = 'build-9'; // версия кода; при изменении страница сама перезагрузится
+  const BUILD = 'build-10'; // версия кода; при изменении страница сама перезагрузится
   const DEFAULTS = { imageDuration: 10, muteVideo: false, showClock: true, showLogo: true, videoFallback: 30 };
   let CFG = Object.assign({}, DEFAULTS);
 
@@ -435,13 +435,45 @@
   // Переходим к следующему слайду по порядку (не пересинхронизируем по часам)
   function nextSlide(){
     if(!running || !playlist.length) return;
-    const cur = playlist.findIndex((_, i) => {
-      const el = currentSlide;
-      return el && el._itemIdx === i;
-    });
+    const cur = currentSlide ? currentSlide._itemIdx : -1;
     const next = (cur < 0 || cur >= playlist.length - 1) ? 0 : cur + 1;
     const dur = starts[next + 1] - starts[next];
-    showSlide(playlist[next], { i: next, dur, localOffset: 0, remaining: dur });
+    const slot = { i: next, dur, localOffset: 0, remaining: dur };
+    // Если следующее видео уже разогрето (preroll) — монтируем мгновенно
+    if(prerollEl && prerollEl._itemIdx === next){
+      const el = prerollEl; prerollEl = null;
+      mountSlide(el, playlist[next], slot);
+    } else {
+      showSlide(playlist[next], slot);
+    }
+  }
+
+  // ── Предразогрев следующего видео (двойная буферизация) ──
+  // За пару секунд до конца текущего ролика начинаем буферизовать следующий,
+  // чтобы он стартовал мгновенно. Окно перекрытия короткое — ТВ его тянет.
+  let prerollEl = null;
+  function discardPreroll(){
+    if(!prerollEl) return;
+    const v = prerollEl.querySelector && prerollEl.querySelector('video');
+    if(v){ try { v.removeAttribute('src'); v.load(); } catch(e){} }
+    prerollEl = null;
+  }
+  function prerollNext(curIdx){
+    if(!playlist.length) return;
+    const next = (curIdx >= playlist.length - 1) ? 0 : curIdx + 1;
+    if(next === curIdx) return; // один слайд — разогревать нечего
+    const item = playlist[next];
+    if(!item || item.type !== 'video') return; // картинки и так лёгкие
+    if(prerollEl && prerollEl._itemIdx === next) return; // уже разогрет
+    discardPreroll();
+    const el = document.createElement('div');
+    el.className = 'slide';
+    el._itemIdx = next;
+    const v = document.createElement('video');
+    v.src = item.url; v.muted = true; v.playsInline = true; v.preload = 'auto';
+    el.appendChild(v);
+    try { v.load(); } catch(e){}
+    prerollEl = el;
   }
 
   function showSlide(item, slot){
@@ -459,6 +491,8 @@
     const remMs = Math.max(slot.remaining, 0.05) * 1000;
 
     el._itemIdx = slot.i;
+    // Если разогрет не тот слайд (плейлист изменился) — выбрасываем
+    if(prerollEl && prerollEl._itemIdx !== slot.i && prerollEl !== el) discardPreroll();
 
     stage.appendChild(el);
     void el.offsetWidth;
@@ -482,6 +516,8 @@
       setProgress(startP);
       animateProgress(startP, remMs);
       advanceTimer = setTimeout(nextSlide, remMs);
+      // разогреть следующее видео за ~3с до конца картинки
+      setTimeout(() => { if(currentSlide === el) prerollNext(slot.i); }, Math.max(remMs - 3000, 0));
     } else {
       const v = el.querySelector('video');
       if(isFinite(v.duration) && v.duration > 0){
@@ -499,7 +535,11 @@
       }).catch(() => {});
 
       v.addEventListener('timeupdate', () => {
-        if(v.duration) setProgress(v.currentTime / v.duration);
+        if(v.duration){
+          setProgress(v.currentTime / v.duration);
+          // за 2.5с до конца — разогреваем следующее видео
+          if(v.duration - v.currentTime <= 2.5) prerollNext(el._itemIdx);
+        }
       });
 
       // ended: переходим к СЛЕДУЮЩЕМУ по порядку (не пересинхронизируем по часам —
@@ -545,6 +585,7 @@
     if(data.config) CFG = Object.assign({}, DEFAULTS, data.config);
     if(!CFG.showClock) clockEl.classList.add('hidden');
     if(!CFG.showLogo)  logoEl.classList.add('hidden');
+    discardPreroll();
 
     const items = (data.items || []).map(it => ({
       name: it.name, type: it.type,
