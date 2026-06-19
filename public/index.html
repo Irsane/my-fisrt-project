@@ -259,7 +259,7 @@
   let serverOffset = 0;
 
   // ── Звук: браузеры разрешают звук только после первого действия пользователя ──
-  const VOLUME = 0.4; // громкость видео (0..1)
+  const VOLUME = 0.2; // громкость видео (0..1) — тихо
   let soundOn = false;
   const soundHint = document.getElementById('soundhint');
 
@@ -421,7 +421,13 @@
     currentSlide = el;
     if(prev){
       prev.classList.remove('visible');
-      setTimeout(() => prev.remove(), 950);
+      // Сразу освобождаем декодер старого видео, чтобы не было рывков
+      const pvid = prev.querySelector && prev.querySelector('video');
+      if(pvid){ try { pvid.pause(); } catch(e){} }
+      setTimeout(() => {
+        if(pvid){ try { pvid.removeAttribute('src'); pvid.load(); } catch(e){} }
+        prev.remove();
+      }, 700);
     }
 
     if(item.type === 'image'){
@@ -465,12 +471,9 @@
     const next = playlist[(i + 1) % playlist.length];
     if(!next) return;
     if(prefetchEl){ try{ prefetchEl.src = ''; }catch(e){} prefetchEl = null; }
-    if(next.type === 'video'){
-      const pv = document.createElement('video');
-      pv.preload = 'auto'; pv.muted = true; pv.src = next.url;
-      try { pv.load(); } catch(e){}
-      prefetchEl = pv; // держим ссылку, чтобы браузер реально буферизовал
-    } else {
+    // ВАЖНО: видео заранее НЕ грузим — второй декодер вешает слабые ТВ и
+    // даёт рывки в конце текущего ролика. Предзагружаем только картинки.
+    if(next.type === 'image'){
       const img = new Image();
       img.src = next.url;
       prefetchEl = img;
