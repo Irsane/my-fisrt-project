@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>2ГИС — Экран офиса</title>
+<style>
+  :root {
+    --brand: #2DBE00;
+    --brand-deep: #15890A;
+    --bg: #000000;
+    --ink: #ffffff;
+    --muted: rgba(255,255,255,.62);
+    --pad: clamp(20px, 3.2vw, 52px);
+    --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--font);
+    overflow: hidden; -webkit-font-smoothing: antialiased; cursor: none;
+  }
+
+  #stage { position: fixed; inset: 0; background: #000; }
+
+  /* ── Слайд + стильный переход (мягкое растворение с расфокусом) ── */
+  .slide {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: #000; opacity: 0; filter: blur(18px) saturate(1.05);
+    transform: scale(1.012);
+    transition: opacity 1.2s cubic-bezier(.4,0,.2,1),
+                filter  1.2s cubic-bezier(.4,0,.2,1),
+                transform 1.2s cubic-bezier(.4,0,.2,1);
+    will-change: opacity, filter, transform;
+  }
+  .slide.visible { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
+
+  .slide img { width: 100%; height: 100%; object-fit: cover; }
+  .slide video { width: 100%; height: 100%; object-fit: contain; }
+
+  /* ── Дрейф изображения вместо зума: масштаб постоянный, двигается только позиция ── */
+  .slide.pan.dir-a img { animation: driftA var(--pandur, 10s) linear forwards; }
+  .slide.pan.dir-b img { animation: driftB var(--pandur, 10s) linear forwards; }
+  @keyframes driftA {
+    from { transform: scale(1.09) translate(-1.8%, -1.2%); }
+    to   { transform: scale(1.09) translate( 1.8%,  1.2%); }
+  }
+  @keyframes driftB {
+    from { transform: scale(1.09) translate( 1.8%, -1.2%); }
+    to   { transform: scale(1.09) translate(-1.8%,  1.2%); }
+  }
+
+  #overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .overlay-hidden { opacity: 0; }
+  .top { display: flex; align-items: flex-start; justify-content: space-between; padding: var(--pad); }
+  .logo {
+    display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 13px;
+    background: rgba(0,0,0,.34); backdrop-filter: blur(8px); border-radius: 999px;
+    box-shadow: 0 6px 26px rgba(0,0,0,.35);
+  }
+  .logo .word { font-weight: 800; font-size: 24px; line-height: 1; transform: translateY(1px); }
+  .logo .word b { color: var(--brand); }
+
+  .clock {
+    text-align: right; padding: 12px 22px; background: rgba(0,0,0,.36);
+    backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 6px 26px rgba(0,0,0,.4);
+  }
+  .clock .time {
+    font-size: clamp(40px, 4.4vw, 66px); font-weight: 700;
+    font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .clock .weekday {
+    margin-top: 10px; font-size: clamp(22px, 2.1vw, 34px); font-weight: 700;
+    line-height: 1; text-transform: capitalize; color: #fff;
+  }
+  .clock .date {
+    margin-top: 5px; font-size: clamp(14px, 1.3vw, 20px); color: var(--muted);
+  }
+
+  .route { margin: 0 var(--pad) calc(var(--pad) * .7); height: 4px; border-radius: 999px; background: rgba(255,255,255,.16); position: relative; }
+  .route .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--brand-deep), var(--brand)); box-shadow: 0 0 14px rgba(45,190,0,.7); }
+  .route .pin { position: absolute; top: 50%; left: 0%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px rgba(45,190,0,.25), 0 0 14px rgba(45,190,0,.9); }
+  .hidden { display: none !important; }
+
+  /* Экран-заглушка, когда в папке media пусто */
+  #empty {
+    position: fixed; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -10%, rgba(45,190,0,.18), transparent 60%), #050a06;
+    text-align: center; padding: 40px;
+  }
+  #empty .badge .word { font-size: 30px; font-weight: 800; }
+  #empty .badge .word b { color: var(--brand); }
+  #empty h1 { font-size: clamp(24px,3vw,40px); font-weight: 750; margin: 18px 0 12px; }
+  #empty p { color: var(--muted); font-size: clamp(15px,1.4vw,19px); line-height: 1.6; }
+  #empty code { color: var(--brand); background: rgba(45,190,0,.1); padding: 2px 9px; border-radius: 7px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide { transition: opacity .3s linear, filter .3s linear; transform: none; }
+    .slide.visible { transform: none; }
+    .slide.pan img { animation: none; transform: scale(1.06); }
+  }
+</style>
+</head>
+<body>
+  <div id="stage"></div>
+
+  <div id="overlay" class="overlay-hidden">
+    <div class="top">
+      <div class="logo" id="logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2C7.86 2 4.5 5.36 4.5 9.5c0 5.13 6.27 11.4 6.54 11.66a1.4 1.4 0 0 0 1.92 0c.27-.26 6.54-6.53 6.54-11.66C19.5 5.36 16.14 2 12 2Z" fill="#2DBE00"/>
+          <circle cx="12" cy="9.5" r="3" fill="#fff"/>
+        </svg>
+        <span class="word">2<b>ГИС</b></span>
+      </div>
+      <div class="clock" id="clock">
+        <div class="time">--:--</div>
+        <div class="weekday">&nbsp;</div>
+        <div class="date">&nbsp;</div>
+      </div>
+    </div>
+    <div class="route" id="route">
+      <div class="fill" id="routeFill"></div>
+      <div class="pin" id="routePin"></div>
+    </div>
+  </div>
+
+  <div id="empty">
+    <div>
+      <div class="badge"><span class="word">2<b>ГИС</b></span></div>
+      <h1>Папка пуста</h1>
+      <p>Добавьте картинки или видео в папку <code>media</code> на сервере —<br>слайды появятся автоматически, перезапуск не нужен.</p>
+    </div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // Якорь общей шкалы времени — одинаков для всех экранов. Не меняйте.
+  const EPOCH = 0;
+
+  const DEFAULTS = { imageDuration: 10, kenBurns: true, muteVideo: true, showClock: true, showLogo: true, videoFallback: 15 };
+  let CFG = Object.assign({}, DEFAULTS);
+
+  const stage    = document.getElementById('stage');
+  const overlay  = document.getElementById('overlay');
+  const emptyEl  = document.getElementById('empty');
+  const clockEl  = document.getElementById('clock');
+  const logoEl   = document.getElementById('logo');
+  const routeFill= document.getElementById('routeFill');
+  const routePin = document.getElementById('routePin');
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let playlist = [], starts = [], total = 0, signature = '';
+  let currentSlide = null, advanceTimer = null, rafId = null, running = false;
+  let serverOffset = 0; // serverNow - clientNow (мс)
+
+  // ── синхронизация с часами сервера ──
+  async function syncTime(){
+    try {
+      const t0 = Date.now();
+      const r = await fetch('api/now', { cache: 'no-store' });
+      const j = await r.json();
+      const t1 = Date.now();
+      serverOffset = j.now - (t0 + (t1 - t0) / 2);
+    } catch (e) { /* оставляем прошлое смещение */ }
+  }
+  function nowSec(){ return (Date.now() + serverOffset) / 1000; }
+
+  // ── получить список медиа с сервера ──
+  async function fetchPlaylist(){
+    const r = await fetch('api/playlist', { cache: 'no-store' });
+    return r.json();
+  }
+
+  function probeVideo(url){
+    return new Promise((resolve) => {
+      const v = document.createElement('video');
+      let done = false;
+      const finish = (d) => { if (done) return; done = true; try { v.removeAttribute('src'); v.load(); } catch(e){} resolve(d); };
+      v.preload = 'metadata'; v.muted = true; v.src = url;
+      v.onloadedmetadata = () => finish(isFinite(v.duration) && v.duration > 0 ? v.duration : CFG.videoFallback);
+      v.onerror = () => finish(CFG.videoFallback);
+      setTimeout(() => finish(CFG.videoFallback), 8000);
+    });
+  }
+
+  async function buildTimeline(items){
+    const durs = await Promise.all(items.map(it => it.type === 'image'
+      ? Promise.resolve(CFG.imageDuration)
+      : probeVideo(it.url)));
+    starts = [0];
+    for (let i = 0; i < durs.length; i++) starts.push(starts[i] + Math.max(durs[i], 0.5));
+    total = starts[starts.length - 1] || 1;
+  }
+
+  function currentSlot(){
+    const t = ((((nowSec()) - EPOCH) % total) + total) % total;
+    let i = 0;
+    while (i < starts.length - 2 && starts[i+1] <= t) i++;
+    const dur = starts[i+1] - starts[i];
+    return { i, dur, localOffset: t - starts[i], remaining: starts[i+1] - t };
+  }
+
+  // ── часы ──
+  const DAYS = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  function tickClock(){
+    if (!CFG.showClock) return;
+    const d = new Date(Date.now() + serverOffset);
+    clockEl.querySelector('.time').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    clockEl.querySelector('.weekday').textContent = DAYS[d.getDay()];
+    clockEl.querySelector('.date').textContent = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  }
+  setInterval(tickClock, 1000);
+
+  // ── прогресс ──
+  function setProgress(p){ p = Math.max(0, Math.min(1, p)); routeFill.style.width = (p*100)+'%'; routePin.style.left = (p*100)+'%'; }
+  function animateProgressRange(fromP, ms){
+    cancelAnimationFrame(rafId); fromP = Math.max(0, Math.min(1, fromP));
+    const s = performance.now();
+    const step = (n) => { const k = (n - s) / ms; setProgress(fromP + (1 - fromP) * k); if (k < 1) rafId = requestAnimationFrame(step); };
+    rafId = requestAnimationFrame(step);
+  }
+
+  function clearAdvance(){ clearTimeout(advanceTimer); cancelAnimationFrame(rafId); }
+
+  function buildSlide(item, onReady, onFail){
+    const el = document.createElement('div'); el.className = 'slide';
+    if (item.type === 'image'){
+      const img = new Image();
+      img.onload = () => onReady(el); img.onerror = onFail; img.src = item.url;
+      el.appendChild(img);
+    } else {
+      const v = document.createElement('video');
+      v.src = item.url; v.muted = !!CFG.muteVideo; v.playsInline = true; v.preload = 'auto';
+      v.oncanplay = () => onReady(el); v.onerror = onFail;
+      el.appendChild(v);
+    }
+    return el;
+  }
+
+  function syncTick(){
+    if (!running || !playlist.length) return;
+    const slot = currentSlot();
+    showSlide(playlist[slot.i], slot);
+  }
+
+  function showSlide(item, slot){
+    clearAdvance();
+    const el = buildSlide(item, (r) => mountSlide(r, item, slot), () => setTimeout(syncTick, 200));
+    el._guard = setTimeout(() => { if (currentSlide !== el){ el.remove(); syncTick(); } }, 12000);
+  }
+
+  function mountSlide(el, item, slot){
+    clearTimeout(el._guard);
+    const remMs = Math.max(slot.remaining, 0.05) * 1000;
+
+    if (item.type === 'image' && !reduced){
+      el.classList.add('pan', slot.i % 2 ? 'dir-b' : 'dir-a');
+      el.style.setProperty('--pandur', slot.dur + 's');
+      const img = el.querySelector('img');
+      if (img) img.style.animationDelay = (-slot.localOffset) + 's';
+    }
+
+    stage.appendChild(el);
+    void el.offsetWidth; el.classList.add('visible');
+    const prev = currentSlide; currentSlide = el;
+    if (prev){ prev.classList.remove('visible'); setTimeout(() => prev.remove(), 1300); }
+
+    const startP = slot.dur > 0 ? slot.localOffset / slot.dur : 0;
+    if (item.type === 'image'){
+      setProgress(startP); animateProgressRange(startP, remMs);
+    } else {
+      const v = el.querySelector('video');
+      try { v.currentTime = Math.min(slot.localOffset, (isFinite(v.duration) ? v.duration : slot.localOffset)); } catch(e){}
+      v.play().catch(() => {});
+      v.addEventListener('timeupdate', () => { if (v.duration) setProgress(v.currentTime / v.duration); });
+    }
+    advanceTimer = setTimeout(syncTick, remMs);
+  }
+
+  // ── применить (новый) плейлист с сервера ──
+  async function applyPlaylist(data){
+    if (data.config) CFG = Object.assign({}, DEFAULTS, data.config);
+    if (!CFG.showClock) clockEl.classList.add('hidden');
+    if (!CFG.showLogo)  logoEl.classList.add('hidden');
+
+    const items = (data.items || []).map(it => ({
+      name: it.name, type: it.type,
+      url: it.url || ('media/' + encodeURIComponent(it.name))
+    }));
+
+    if (items.length === 0){
+      running = false; clearAdvance();
+      if (currentSlide){ currentSlide.classList.remove('visible'); const c = currentSlide; setTimeout(() => c.remove(), 1300); currentSlide = null; }
+      overlay.classList.add('overlay-hidden'); emptyEl.classList.remove('hidden');
+      signature = data.signature || '';
+      return;
+    }
+
+    emptyEl.classList.add('hidden'); overlay.classList.remove('overlay-hidden');
+    playlist = items; signature = data.signature || '';
+    await buildTimeline(items);
+    tickClock();
+    if (!running){ running = true; syncTick(); }
+  }
+
+  // ── опрос сервера: новые/удалённые файлы подхватываются на лету ──
+  async function poll(){
+    try {
+      const data = await fetchPlaylist();
+      if ((data.signature || '') !== signature) await applyPlaylist(data);
+    } catch (e) { /* сервер недоступен — пробуем позже */ }
+  }
+
+  async function boot(){
+    await syncTime();
+    try {
+      const data = await fetchPlaylist();
+      await applyPlaylist(data);
+    } catch (e) {
+      emptyEl.querySelector('h1').textContent = 'Нет связи с сервером';
+      emptyEl.querySelector('p').innerHTML = 'Проверьте, что сервер запущен, и обновите страницу.';
+    }
+    setInterval(poll, 8000);       // следим за изменениями в папке media
+    setInterval(syncTime, 60000);  // подравниваемся под часы сервера
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

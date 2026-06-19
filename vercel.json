@@ -1,0 +1,7 @@
+{
+  "buildCommand": "node scripts/build-manifest.mjs",
+  "outputDirectory": "public",
+  "headers": [
+    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+  ]
+}
