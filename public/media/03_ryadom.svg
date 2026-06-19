@@ -1,41 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
   <defs>
-    <linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F7B500"/>
-      <stop offset="1" stop-color="#E07B00"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0C1A12"/>
+      <stop offset="1" stop-color="#06120B"/>
     </linearGradient>
-    <radialGradient id="glow3" cx="50%" cy="42%" r="60%">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".20"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    <radialGradient id="accent" cx="50%" cy="56%" r="50%">
+      <stop offset="0" stop-color="#2DBE00" stop-opacity=".20"/>
+      <stop offset="1" stop-color="#2DBE00" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <rect width="1920" height="1080" fill="url(#bg3)"/>
-  <rect width="1920" height="1080" fill="url(#glow3)"/>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#accent)"/>
 
-  <g stroke="#FFFFFF" stroke-opacity=".16" stroke-width="16" fill="none" stroke-linecap="round">
-    <path d="M-50 280 L640 280 L780 420 L2000 420"/>
-    <path d="M-50 860 L920 860 L1060 720 L2000 720"/>
-    <path d="M520 -50 L520 1130"/>
-    <path d="M1400 -50 L1400 1130"/>
+  <g stroke="#2DBE00" stroke-opacity=".06" stroke-width="2">
+    <path d="M0 250 H1920 M0 450 H1920 M0 650 H1920 M0 850 H1920"/>
+    <path d="M320 0 V1080 M640 0 V1080 M960 0 V1080 M1280 0 V1080 M1600 0 V1080"/>
   </g>
 
   <!-- headline -->
-  <text x="960" y="300" text-anchor="middle" fill="#FFFFFF" font-size="132" font-weight="800" letter-spacing="-1">Всё, что рядом</text>
+  <text x="960" y="280" text-anchor="middle" fill="#2DBE00" font-size="32" font-weight="700" letter-spacing="8">ВОКРУГ ВАС</text>
+  <text x="960" y="390" text-anchor="middle" fill="#FFFFFF" font-size="120" font-weight="800" letter-spacing="-1">Всё, что рядом</text>
 
   <!-- pins cluster -->
   <g transform="translate(960,560)">
-    <g transform="translate(-360,0)"><path d="M0 -60 C-33 -60 -60 -33 -60 0 C-60 40 0 100 0 100 C0 100 60 40 60 0 C60 -33 33 -60 0 -60 Z" fill="#2DBE00"/><circle cx="0" cy="-5" r="24" fill="#fff"/></g>
-    <g transform="translate(-120,40)"><path d="M0 -60 C-33 -60 -60 -33 -60 0 C-60 40 0 100 0 100 C0 100 60 40 60 0 C60 -33 33 -60 0 -60 Z" fill="#1E88E5"/><circle cx="0" cy="-5" r="24" fill="#fff"/></g>
-    <g transform="translate(120,40)"><path d="M0 -60 C-33 -60 -60 -33 -60 0 C-60 40 0 100 0 100 C0 100 60 40 60 0 C60 -33 33 -60 0 -60 Z" fill="#E53935"/><circle cx="0" cy="-5" r="24" fill="#fff"/></g>
-    <g transform="translate(360,0)"><path d="M0 -60 C-33 -60 -60 -33 -60 0 C-60 40 0 100 0 100 C0 100 60 40 60 0 C60 -33 33 -60 0 -60 Z" fill="#6D4C41"/><circle cx="0" cy="-5" r="24" fill="#fff"/></g>
+    <g transform="translate(-330,-10)"><path d="M0 -52 C-29 -52 -52 -29 -52 0 C-52 35 0 88 0 88 C0 88 52 35 52 0 C52 -29 29 -52 0 -52 Z" fill="#2DBE00"/><circle cx="0" cy="-6" r="20" fill="#06120B"/></g>
+    <g transform="translate(-110,30)"><path d="M0 -52 C-29 -52 -52 -29 -52 0 C-52 35 0 88 0 88 C0 88 52 35 52 0 C52 -29 29 -52 0 -52 Z" fill="#36C2F5"/><circle cx="0" cy="-6" r="20" fill="#06120B"/></g>
+    <g transform="translate(110,30)"><path d="M0 -52 C-29 -52 -52 -29 -52 0 C-52 35 0 88 0 88 C0 88 52 35 52 0 C52 -29 29 -52 0 -52 Z" fill="#FF6B57"/><circle cx="0" cy="-6" r="20" fill="#06120B"/></g>
+    <g transform="translate(330,-10)"><path d="M0 -52 C-29 -52 -52 -29 -52 0 C-52 35 0 88 0 88 C0 88 52 35 52 0 C52 -29 29 -52 0 -52 Z" fill="#F5A623"/><circle cx="0" cy="-6" r="20" fill="#06120B"/></g>
   </g>
 
   <!-- chips -->
-  <g transform="translate(960,800)" font-size="40" font-weight="700" fill="#0A6F1B">
-    <g transform="translate(-690,0)"><rect width="240" height="84" rx="42" fill="#FFFFFF"/><text x="120" y="55" text-anchor="middle">Кафе</text></g>
-    <g transform="translate(-420,0)"><rect width="300" height="84" rx="42" fill="#FFFFFF"/><text x="150" y="55" text-anchor="middle">Аптеки</text></g>
-    <g transform="translate(-90,0)"><rect width="280" height="84" rx="42" fill="#FFFFFF"/><text x="140" y="55" text-anchor="middle">Банки</text></g>
-    <g transform="translate(230,0)"><rect width="380" height="84" rx="42" fill="#FFFFFF"/><text x="190" y="55" text-anchor="middle">Парковки</text></g>
+  <g transform="translate(960,800)" font-size="38" font-weight="600">
+    <g transform="translate(-690,0)"><rect width="240" height="80" rx="40" fill="#FFFFFF" fill-opacity=".06" stroke="#2DBE00" stroke-opacity=".35" stroke-width="2"/><text x="120" y="52" text-anchor="middle" fill="#FFFFFF">Кафе</text></g>
+    <g transform="translate(-420,0)"><rect width="300" height="80" rx="40" fill="#FFFFFF" fill-opacity=".06" stroke="#2DBE00" stroke-opacity=".35" stroke-width="2"/><text x="150" y="52" text-anchor="middle" fill="#FFFFFF">Аптеки</text></g>
+    <g transform="translate(-90,0)"><rect width="280" height="80" rx="40" fill="#FFFFFF" fill-opacity=".06" stroke="#2DBE00" stroke-opacity=".35" stroke-width="2"/><text x="140" y="52" text-anchor="middle" fill="#FFFFFF">Банки</text></g>
+    <g transform="translate(230,0)"><rect width="380" height="80" rx="40" fill="#FFFFFF" fill-opacity=".06" stroke="#2DBE00" stroke-opacity=".35" stroke-width="2"/><text x="190" y="52" text-anchor="middle" fill="#FFFFFF">Парковки</text></g>
   </g>
 </svg>

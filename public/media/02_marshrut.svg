@@ -1,41 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
   <defs>
-    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#103E73"/>
-      <stop offset="1" stop-color="#06203F"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0C1A12"/>
+      <stop offset="1" stop-color="#06120B"/>
     </linearGradient>
-    <radialGradient id="glow2" cx="50%" cy="45%" r="60%">
-      <stop offset="0" stop-color="#2DBE00" stop-opacity=".18"/>
+    <radialGradient id="accent" cx="50%" cy="42%" r="50%">
+      <stop offset="0" stop-color="#2DBE00" stop-opacity=".22"/>
       <stop offset="1" stop-color="#2DBE00" stop-opacity="0"/>
     </radialGradient>
     <filter id="rshadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#2DBE00" flood-opacity=".85"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="14" flood-color="#2DBE00" flood-opacity=".9"/>
     </filter>
   </defs>
 
-  <rect width="1920" height="1080" fill="url(#bg2)"/>
-  <rect width="1920" height="1080" fill="url(#glow2)"/>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#accent)"/>
 
-  <!-- grid -->
-  <g stroke="#FFFFFF" stroke-opacity=".06" stroke-width="2">
-    <path d="M0 220 H1920 M0 420 H1920 M0 620 H1920 M0 820 H1920"/>
+  <!-- subtle grid -->
+  <g stroke="#2DBE00" stroke-opacity=".06" stroke-width="2">
+    <path d="M0 250 H1920 M0 450 H1920 M0 650 H1920 M0 850 H1920"/>
     <path d="M320 0 V1080 M640 0 V1080 M960 0 V1080 M1280 0 V1080 M1600 0 V1080"/>
   </g>
 
   <!-- headline -->
-  <text x="960" y="300" text-anchor="middle" fill="#FFFFFF" font-size="128" font-weight="800" letter-spacing="-1">Построим маршрут</text>
-  <text x="960" y="380" text-anchor="middle" fill="#FFFFFF" fill-opacity=".82" font-size="44" font-weight="500">Быстрая навигация по городу — пешком, на авто и транспорте</text>
+  <text x="960" y="300" text-anchor="middle" fill="#2DBE00" font-size="32" font-weight="700" letter-spacing="8">НАВИГАЦИЯ</text>
+  <text x="960" y="410" text-anchor="middle" fill="#FFFFFF" font-size="118" font-weight="800" letter-spacing="-1">Построим маршрут</text>
 
   <!-- route -->
-  <path d="M360 760 C560 760 580 560 820 560 C1080 560 1060 600 1300 600 L1560 600"
-        fill="none" stroke="#2DBE00" stroke-width="18" stroke-linecap="round" filter="url(#rshadow)"/>
-  <path d="M360 760 C560 760 580 560 820 560 C1080 560 1060 600 1300 600 L1560 600"
-        fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 28" opacity=".9"/>
+  <path d="M380 760 C600 760 600 580 840 580 C1100 580 1080 640 1320 640 L1540 640"
+        fill="none" stroke="#2DBE00" stroke-width="16" stroke-linecap="round" filter="url(#rshadow)"/>
+  <path d="M380 760 C600 760 600 580 840 580 C1100 580 1080 640 1320 640 L1540 640"
+        fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 30" opacity=".85"/>
 
-  <circle cx="360" cy="760" r="22" fill="#FFFFFF"/>
-  <circle cx="360" cy="760" r="11" fill="#2DBE00"/>
-  <g transform="translate(1560,600)">
-    <path d="M0 -80 C-44 -80 -80 -44 -80 0 C-80 53 0 132 0 132 C0 132 80 53 80 0 C80 -44 44 -80 0 -80 Z" fill="#F5A623"/>
-    <circle cx="0" cy="-6" r="32" fill="#FFFFFF"/>
+  <circle cx="380" cy="760" r="24" fill="#06120B" stroke="#2DBE00" stroke-width="6"/>
+  <circle cx="380" cy="760" r="9" fill="#2DBE00"/>
+  <g transform="translate(1540,640)">
+    <ellipse cx="0" cy="96" rx="36" ry="9" fill="#000000" opacity=".35"/>
+    <path d="M0 -76 C-42 -76 -76 -42 -76 0 C-76 50 0 124 0 124 C0 124 76 50 76 0 C76 -42 42 -76 0 -76 Z" fill="#2DBE00"/>
+    <circle cx="0" cy="-8" r="30" fill="#06120B"/>
   </g>
 </svg>

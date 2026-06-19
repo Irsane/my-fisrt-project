@@ -35,17 +35,10 @@
   }
   .slide.visible { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
 
-  .slide img { position: relative; width: 100%; height: 100%; object-fit: contain; }
-  .slide video { width: 100%; height: 100%; object-fit: contain; }
-  /* Дрейф отключён — изображение всегда видно целиком, ничего не скрывается. */
+  .slide img { position: relative; width: 100%; height: 100%; object-fit: cover; }
+  .slide video { width: 100%; height: 100%; object-fit: cover; }
+  /* Дрейф отключён — слайды статичны, ничего не скрывается за движением. */
   .slide.pan img { animation: none !important; transform: none !important; }
-
-  /* Размытая заливка фона — чтобы не было чёрных полос, когда картинка
-     показывается целиком (контейн) на экранах с другим соотношением сторон. */
-  .slide .bg {
-    position: absolute; inset: 0; background-size: cover; background-position: center;
-    filter: blur(30px) brightness(.55) saturate(1.1); transform: scale(1.2);
-  }
 
   /* ── Дрейф изображения вместо зума: масштаб постоянный, двигается только позиция ── */
   .slide.pan.dir-a img { animation: driftA var(--pandur, 10s) linear forwards; }
@@ -116,8 +109,6 @@
   @media (max-width: 600px) {
     :root { --pad: 14px; }
     body { cursor: auto; }
-    .slide img { object-fit: contain; }
-    .slide.pan img { animation: none !important; transform: none; }
     .top { align-items: center; gap: 10px; flex-wrap: nowrap; }
     .logo { padding: 7px 14px 7px 8px; gap: 8px; }
     .logo svg { width: 28px; height: 28px; }
@@ -288,10 +279,6 @@
   function buildSlide(item, onReady, onFail){
     const el = document.createElement('div'); el.className = 'slide';
     if (item.type === 'image'){
-      const bg = document.createElement('div');
-      bg.className = 'bg';
-      bg.style.backgroundImage = `url("${item.url.replace(/"/g, '\\"')}")`;
-      el.appendChild(bg);
       const img = new Image();
       img.onload = () => onReady(el); img.onerror = onFail; img.src = item.url;
       el.appendChild(img);

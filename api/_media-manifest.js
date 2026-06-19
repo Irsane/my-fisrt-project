@@ -1,17 +1,17 @@
 export default [
   {
     "name": "01_welcome.svg",
-    "size": 1620,
-    "mtime": 1781862509818
+    "size": 2924,
+    "mtime": 1781862849326
   },
   {
     "name": "02_marshrut.svg",
-    "size": 2206,
-    "mtime": 1781862523374
+    "size": 2231,
+    "mtime": 1781862863146
   },
   {
     "name": "03_ryadom.svg",
-    "size": 2723,
-    "mtime": 1781862539726
+    "size": 3143,
+    "mtime": 1781862885650
   }
 ];

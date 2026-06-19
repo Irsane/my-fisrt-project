@@ -1,36 +1,44 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
   <defs>
-    <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#23C13F"/>
-      <stop offset="1" stop-color="#0A6F1B"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0C1A12"/>
+      <stop offset="1" stop-color="#06120B"/>
     </linearGradient>
-    <radialGradient id="glow1" cx="50%" cy="38%" r="55%">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".18"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    <radialGradient id="accent" cx="50%" cy="34%" r="46%">
+      <stop offset="0" stop-color="#2DBE00" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#2DBE00" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="pinGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#2DBE00" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#2DBE00" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <rect width="1920" height="1080" fill="url(#bg1)"/>
-  <rect width="1920" height="1080" fill="url(#glow1)"/>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <rect width="1920" height="1080" fill="url(#accent)"/>
 
-  <!-- map decoration -->
-  <g stroke="#FFFFFF" stroke-opacity=".10" stroke-width="16" fill="none" stroke-linecap="round">
-    <path d="M-50 250 L640 250 L780 390 L2000 390"/>
-    <path d="M-50 900 L560 900 L700 760 L2000 760"/>
-    <path d="M260 -50 L260 1130"/>
-    <path d="M1640 -50 L1640 1130"/>
+  <!-- subtle dotted map grid -->
+  <g fill="#2DBE00" fill-opacity=".07">
+    <!-- generated dot grid -->
+    <g>
+      <circle cx="160" cy="160" r="3"/><circle cx="320" cy="160" r="3"/><circle cx="480" cy="160" r="3"/><circle cx="640" cy="160" r="3"/><circle cx="800" cy="160" r="3"/><circle cx="960" cy="160" r="3"/><circle cx="1120" cy="160" r="3"/><circle cx="1280" cy="160" r="3"/><circle cx="1440" cy="160" r="3"/><circle cx="1600" cy="160" r="3"/><circle cx="1760" cy="160" r="3"/>
+      <circle cx="160" cy="320" r="3"/><circle cx="320" cy="320" r="3"/><circle cx="480" cy="320" r="3"/><circle cx="640" cy="320" r="3"/><circle cx="800" cy="320" r="3"/><circle cx="1120" cy="320" r="3"/><circle cx="1280" cy="320" r="3"/><circle cx="1440" cy="320" r="3"/><circle cx="1600" cy="320" r="3"/><circle cx="1760" cy="320" r="3"/>
+      <circle cx="160" cy="920" r="3"/><circle cx="320" cy="920" r="3"/><circle cx="480" cy="920" r="3"/><circle cx="640" cy="920" r="3"/><circle cx="800" cy="920" r="3"/><circle cx="960" cy="920" r="3"/><circle cx="1120" cy="920" r="3"/><circle cx="1280" cy="920" r="3"/><circle cx="1440" cy="920" r="3"/><circle cx="1600" cy="920" r="3"/><circle cx="1760" cy="920" r="3"/>
+    </g>
   </g>
 
   <!-- hero pin -->
-  <g transform="translate(960,400)">
-    <ellipse cx="0" cy="250" rx="120" ry="26" fill="#000000" opacity=".15"/>
-    <path d="M0 -150 C-83 -150 -150 -83 -150 0 C-150 100 0 250 0 250 C0 250 150 100 150 0 C150 -83 83 -150 0 -150 Z" fill="#FFFFFF"/>
-    <circle cx="0" cy="-10" r="66" fill="#2DBE00"/>
+  <g transform="translate(960,360)">
+    <circle cx="0" cy="0" r="190" fill="url(#pinGlow)"/>
+    <ellipse cx="0" cy="208" rx="78" ry="16" fill="#000000" opacity=".35"/>
+    <path d="M0 -120 C-66 -120 -120 -66 -120 0 C-120 80 0 200 0 200 C0 200 120 80 120 0 C120 -66 66 -120 0 -120 Z" fill="#2DBE00"/>
+    <circle cx="0" cy="-12" r="46" fill="#0C1A12"/>
   </g>
 
   <!-- text -->
-  <g fill="#FFFFFF" text-anchor="middle">
-    <text x="960" y="800" font-size="130" font-weight="800" letter-spacing="-1">Добро пожаловать</text>
-    <text x="960" y="888" font-size="46" font-weight="500" fill-opacity=".92">в офис 2ГИС — рады вас видеть</text>
+  <g text-anchor="middle">
+    <text x="960" y="700" fill="#2DBE00" font-size="32" font-weight="700" letter-spacing="8">2ГИС · ОФИС</text>
+    <text x="960" y="810" fill="#FFFFFF" font-size="118" font-weight="800" letter-spacing="-1">Добро пожаловать</text>
+    <text x="960" y="884" fill="#FFFFFF" fill-opacity=".55" font-size="40" font-weight="400">Рады видеть вас сегодня</text>
   </g>
 </svg>
