@@ -259,7 +259,7 @@
   let serverOffset = 0;
 
   // ── Звук: браузеры разрешают звук только после первого действия пользователя ──
-  const VOLUME = 0.4; // громкость видео (0..1)
+  const VOLUME = 0.12; // громкость видео (0..1) — тихо, фоном
   let soundOn = false;
   const soundHint = document.getElementById('soundhint');
 
@@ -376,7 +376,7 @@
       v.src         = item.url;
       v.muted       = true;
       v.playsInline = true;
-      v.preload     = 'metadata'; // 'auto' заставляет ТВ буферизовать всё сразу
+      v.preload     = 'auto'; // одно видео за раз — буферизуем заранее для плавного старта
 
       let fired = false;
       const fire = () => { if(!fired){ fired = true; onReady(el); } };
@@ -446,6 +446,28 @@
       });
       v.addEventListener('ended', syncTick);
       advanceTimer = setTimeout(syncTick, remMs);
+    }
+
+    // Предзагрузка следующего файла, чтобы не было лага при переключении
+    prefetchNext(slot.i);
+  }
+
+  // Тянем следующий медиафайл в кэш заранее (плавный старт/конец)
+  let prefetchEl = null;
+  function prefetchNext(i){
+    if(!playlist.length) return;
+    const next = playlist[(i + 1) % playlist.length];
+    if(!next) return;
+    if(prefetchEl){ try{ prefetchEl.src = ''; }catch(e){} prefetchEl = null; }
+    if(next.type === 'video'){
+      const pv = document.createElement('video');
+      pv.preload = 'auto'; pv.muted = true; pv.src = next.url;
+      try { pv.load(); } catch(e){}
+      prefetchEl = pv; // держим ссылку, чтобы браузер реально буферизовал
+    } else {
+      const img = new Image();
+      img.src = next.url;
+      prefetchEl = img;
     }
   }
 
