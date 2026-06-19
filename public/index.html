@@ -74,27 +74,34 @@
   .logo .word b { color: #1a1a1a; font-weight: 800; }
 
   .clock {
-    text-align: right; padding: 14px 24px 16px; background: rgba(0,0,0,.36);
-    backdrop-filter: blur(10px); border-radius: 22px; box-shadow: 0 6px 26px rgba(0,0,0,.4);
+    text-align: right; padding: 6px 4px;
+    text-shadow: 0 2px 18px rgba(0,0,0,.55);
   }
   .clock .time {
-    font-size: clamp(40px, 4.4vw, 66px); font-weight: 700;
-    font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: 1px;
+    font-size: clamp(44px, 4.8vw, 74px); font-weight: 600;
+    font-variant-numeric: tabular-nums; line-height: .98; letter-spacing: -2px;
   }
   .clock .dateline {
-    margin-top: 12px; display: flex; align-items: baseline; justify-content: flex-end;
-    gap: 12px; line-height: 1;
+    margin-top: 12px; display: flex; align-items: center; justify-content: flex-end;
+    gap: 11px; line-height: 1;
   }
   .clock .weekday {
-    font-size: clamp(18px, 1.8vw, 28px); font-weight: 700;
-    text-transform: capitalize; color: var(--brand); letter-spacing: .3px;
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: clamp(15px, 1.5vw, 22px); font-weight: 500;
+    text-transform: capitalize; color: rgba(255,255,255,.95); letter-spacing: .2px;
   }
+  /* маленький живой индикатор — акцент бренда без крика */
+  .clock .weekday::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--brand); box-shadow: 0 0 10px rgba(45,190,0,.85);
+  }
+  /* тихий разделитель между днём и датой */
   .clock .weekday::after {
-    content: ""; display: inline-block; width: 5px; height: 5px; margin-left: 12px;
-    border-radius: 50%; background: rgba(255,255,255,.4); vertical-align: middle;
+    content: ""; width: 4px; height: 4px; margin-left: 2px;
+    border-radius: 50%; background: rgba(255,255,255,.32);
   }
   .clock .date {
-    font-size: clamp(16px, 1.5vw, 24px); font-weight: 600; color: #fff;
+    font-size: clamp(15px, 1.5vw, 22px); font-weight: 500; color: rgba(255,255,255,.55);
     font-variant-numeric: tabular-nums;
   }
 
@@ -112,12 +119,13 @@
     .logo { padding: 7px 14px 7px 8px; gap: 8px; }
     .logo svg { width: 28px; height: 28px; }
     .logo .word { font-size: 18px; }
-    .clock { padding: 10px 14px 12px; border-radius: 16px; }
-    .clock .time { font-size: 28px; letter-spacing: 0; }
-    .clock .dateline { margin-top: 6px; gap: 6px; }
-    .clock .weekday { font-size: 13px; }
-    .clock .weekday::after { width: 4px; height: 4px; margin-left: 6px; }
-    .clock .date { font-size: 13px; }
+    .clock { padding: 2px; }
+    .clock .time { font-size: 30px; letter-spacing: -1px; }
+    .clock .dateline { margin-top: 6px; gap: 7px; }
+    .clock .weekday { font-size: 12px; gap: 6px; }
+    .clock .weekday::before { width: 5px; height: 5px; }
+    .clock .weekday::after { width: 3px; height: 3px; }
+    .clock .date { font-size: 12px; }
     .route { height: 3px; margin-bottom: 10px; }
     .route .pin { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; }
   }
