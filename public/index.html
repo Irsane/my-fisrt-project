@@ -12,11 +12,12 @@
     --brand: #2DBE00;
     --brand-deep: #15890A;
     --bg: #07100A;
-    --border: rgba(255,255,255,.07);
     --ink: #ffffff;
-    --muted: rgba(255,255,255,.42);
+    --muted: rgba(255,255,255,.45);
+    --pad: clamp(20px, 3vw, 48px);
+    --frame-gap: clamp(16px, 2.2vw, 36px);
+    --radius: clamp(16px, 1.8vw, 28px);
     --font: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
-    --sidebar: clamp(200px, 22vw, 320px);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,23 +29,44 @@
     cursor: none;
   }
 
-  /* ── Основная сетка ── */
-  #app {
-    display: grid;
-    grid-template-columns: var(--sidebar) 1fr var(--sidebar);
-    grid-template-rows: 1fr 5px;
-    height: 100vh;
+  /* ── Тёмная сцена (полный экран) ── */
+  #stage {
+    position: fixed; inset: 0;
+    background: var(--bg);
   }
 
-  /* ── Боковые панели ── */
-  .sidebar {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: clamp(28px, 3.6vh, 56px) clamp(24px, 2.4vw, 40px);
+  /* ── Слайды: округлое окно с отступами ── */
+  .slide {
+    position: absolute;
+    inset: var(--frame-gap);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #000;
+    opacity: 0;
+    transition: opacity 0.85s cubic-bezier(0.23, 1, 0.32, 1);
   }
-  #sidebar-left  { border-right: 1px solid var(--border); }
-  #sidebar-right { border-left:  1px solid var(--border); align-items: flex-end; text-align: right; }
+  .slide.visible { opacity: 1; }
+  .slide img   { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .slide video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
+
+  /* ── Оверлей поверх сцены ── */
+  #overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  /* верхний градиентный scrim для читаемости */
+  #overlay::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 180px; z-index: -1;
+    background: linear-gradient(180deg, rgba(7,16,10,.7) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* ── Верхняя строка: логотип + часы ── */
+  .top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    padding: var(--pad);
+  }
 
   /* ── Логотип ── */
   .logo {
@@ -52,37 +74,29 @@
     padding: 8px 18px 8px 9px;
     background: rgba(255,255,255,.96);
     border-radius: 999px;
-    box-shadow: 0 4px 24px rgba(0,0,0,.35);
-    flex-shrink: 0;
+    box-shadow: 0 4px 24px rgba(0,0,0,.4);
   }
-  .logo svg { display: block; border-radius: 8px; flex-shrink: 0; }
+  .logo svg  { display: block; border-radius: 8px; }
   .logo .word { font-weight: 800; font-size: clamp(18px, 1.6vw, 24px); line-height: 1; color: #1a1a1a; }
 
-  /* ── Декоративная линия ── */
-  .deco-line {
-    height: 1px; width: 48px;
-    background: linear-gradient(90deg, var(--brand), transparent);
-    opacity: .5; border-radius: 1px;
-  }
-  #sidebar-right .deco-line {
-    background: linear-gradient(270deg, var(--brand), transparent);
-  }
-
   /* ── Часы ── */
-  .clock { display: flex; flex-direction: column; align-items: flex-end; }
+  .clock {
+    text-align: right;
+    text-shadow: 0 2px 18px rgba(0,0,0,.6);
+  }
   .clock .time {
     display: inline-block;
-    font-size: clamp(48px, 5.2vw, 82px); font-weight: 600;
+    font-size: clamp(44px, 5vw, 78px); font-weight: 600;
     font-variant-numeric: tabular-nums; line-height: 1;
     letter-spacing: -2px; white-space: nowrap;
   }
   .clock .dateline {
-    margin-top: 10px;
-    display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    margin-top: 8px;
+    display: flex; align-items: center; justify-content: flex-end; gap: 9px;
   }
   .clock .weekday {
     display: inline-flex; align-items: center; gap: 8px;
-    font-size: clamp(13px, 1.3vw, 19px); font-weight: 500;
+    font-size: clamp(14px, 1.4vw, 20px); font-weight: 500;
     color: rgba(255,255,255,.92); text-transform: capitalize;
   }
   .clock .weekday::before {
@@ -95,38 +109,22 @@
     border-radius: 50%; background: rgba(255,255,255,.28);
   }
   .clock .date {
-    font-size: clamp(13px, 1.3vw, 19px); font-weight: 500; color: var(--muted);
+    font-size: clamp(14px, 1.4vw, 20px); font-weight: 500; color: var(--muted);
     font-variant-numeric: tabular-nums;
   }
 
-  /* ── Центральная сцена ── */
-  #stage {
+  /* ── Прогресс-бар (нижняя полоска) ── */
+  .bottom { padding: 0 var(--pad) var(--pad); }
+  .route {
+    height: 4px; border-radius: 999px;
+    background: rgba(255,255,255,.14);
     position: relative;
-    background: #000;
-    overflow: hidden;
   }
-
-  /* ── Слайды — только opacity, GPU-friendly ── */
-  .slide {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: #000; opacity: 0;
-    transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  .slide.visible { opacity: 1; }
-  .slide img   { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .slide video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
-
-  /* ── Прогресс ── */
-  #progressbar {
-    grid-column: 1 / -1;
-    position: relative;
-    background: rgba(255,255,255,.08);
-  }
-  #routeFill {
-    position: absolute; inset: 0; width: 0%;
+  .route .fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    border-radius: 999px;
     background: linear-gradient(90deg, var(--brand-deep), var(--brand));
-    box-shadow: 0 0 10px rgba(45,190,0,.55);
+    box-shadow: 0 0 12px rgba(45,190,0,.65);
   }
 
   /* ── Экран "пусто" ── */
@@ -142,30 +140,13 @@
   .hidden { display: none !important; }
 
   /* ── Мобильная адаптация ── */
-  @media (max-width: 700px) {
-    :root { --sidebar: 100%; }
+  @media (max-width: 600px) {
+    :root { --pad: 14px; --frame-gap: 10px; --radius: 14px; }
     body { cursor: auto; }
-    #app {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr auto 4px;
-    }
-    #sidebar-left {
-      border-right: none; border-bottom: 1px solid var(--border);
-      flex-direction: row; align-items: center; justify-content: flex-start;
-      padding: 14px 18px; grid-row: 1;
-    }
-    #stage       { grid-row: 2; }
-    #sidebar-right {
-      border-left: none; border-top: 1px solid var(--border);
-      flex-direction: row; align-items: center; justify-content: space-between;
-      padding: 12px 18px; grid-row: 3; text-align: left;
-    }
-    #progressbar { grid-row: 4; }
-    .deco-line   { display: none; }
-    .clock       { align-items: flex-start; }
     .clock .time { font-size: 30px; letter-spacing: -1px; }
-    .clock .dateline { justify-content: flex-start; margin-top: 4px; }
-    .clock .weekday, .clock .date { font-size: 13px; }
+    .clock .weekday, .clock .date { font-size: 12px; }
+    .clock .dateline { margin-top: 4px; }
+    .route { height: 3px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -174,9 +155,11 @@
 </style>
 </head>
 <body>
-<div id="app">
 
-  <div id="sidebar-left" class="sidebar">
+<div id="stage"></div>
+
+<div id="overlay">
+  <div class="top">
     <div class="logo" id="logo">
       <svg width="34" height="34" viewBox="0 0 48 48" aria-hidden="true">
         <defs><clipPath id="sq"><rect x="2" y="2" width="44" height="44" rx="12"/></clipPath></defs>
@@ -191,12 +174,6 @@
       </svg>
       <span class="word">2<b>ГИС</b></span>
     </div>
-    <div class="deco-line"></div>
-  </div>
-
-  <div id="stage"></div>
-
-  <div id="sidebar-right" class="sidebar">
     <div class="clock" id="clock">
       <div class="time">--:--</div>
       <div class="dateline">
@@ -204,11 +181,12 @@
         <span class="date">&nbsp;</span>
       </div>
     </div>
-    <div class="deco-line"></div>
   </div>
-
-  <div id="progressbar"><div id="routeFill"></div></div>
-
+  <div class="bottom">
+    <div class="route">
+      <div class="fill" id="routeFill"></div>
+    </div>
+  </div>
 </div>
 
 <div id="empty">
@@ -226,18 +204,18 @@
   const DEFAULTS = { imageDuration: 10, muteVideo: false, showClock: true, showLogo: true, videoFallback: 30 };
   let CFG = Object.assign({}, DEFAULTS);
 
-  const stage    = document.getElementById('stage');
-  const emptyEl  = document.getElementById('empty');
-  const clockEl  = document.getElementById('clock');
-  const logoEl   = document.getElementById('logo');
-  const routeFill= document.getElementById('routeFill');
+  const stage     = document.getElementById('stage');
+  const emptyEl   = document.getElementById('empty');
+  const clockEl   = document.getElementById('clock');
+  const logoEl    = document.getElementById('logo');
+  const routeFill = document.getElementById('routeFill');
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let playlist = [], starts = [], total = 0, signature = '';
   let currentSlide = null, advanceTimer = null, rafId = null, running = false;
   let serverOffset = 0;
 
-  // ── Синхронизация с сервером ──
+  // ── Синхронизация времени ──
   async function syncTime(){
     try {
       const t0 = Date.now();
@@ -258,7 +236,11 @@
     return new Promise(resolve => {
       const v = document.createElement('video');
       let done = false;
-      const finish = d => { if(done) return; done=true; try{ v.removeAttribute('src'); v.load(); }catch(e){} resolve(d); };
+      const finish = d => {
+        if(done) return; done = true;
+        try{ v.removeAttribute('src'); v.load(); } catch(e){}
+        resolve(d);
+      };
       v.preload = 'metadata'; v.muted = true; v.src = url;
       v.onloadedmetadata = () => finish(isFinite(v.duration) && v.duration > 0 ? v.duration : CFG.videoFallback);
       v.onerror = () => finish(CFG.videoFallback);
@@ -271,14 +253,14 @@
       it.type === 'image' ? Promise.resolve(CFG.imageDuration) : probeVideo(it.url)
     ));
     starts = [0];
-    for(let i=0; i<durs.length; i++) starts.push(starts[i] + Math.max(durs[i], 0.5));
-    total = starts[starts.length-1] || 1;
+    for(let i = 0; i < durs.length; i++) starts.push(starts[i] + Math.max(durs[i], 0.5));
+    total = starts[starts.length - 1] || 1;
   }
 
   function currentSlot(){
     const t = (((nowSec() - EPOCH) % total) + total) % total;
     let i = 0;
-    while(i < starts.length-2 && starts[i+1] <= t) i++;
+    while(i < starts.length - 2 && starts[i+1] <= t) i++;
     const dur = starts[i+1] - starts[i];
     return { i, dur, localOffset: t - starts[i], remaining: starts[i+1] - t };
   }
@@ -297,14 +279,14 @@
   setInterval(tickClock, 1000);
 
   // ── Прогресс ──
-  function setProgress(p){ routeFill.style.width = (Math.max(0,Math.min(1,p))*100)+'%'; }
+  function setProgress(p){ routeFill.style.width = (Math.max(0, Math.min(1, p)) * 100) + '%'; }
   function animateProgress(fromP, ms){
     cancelAnimationFrame(rafId);
     fromP = Math.max(0, Math.min(1, fromP));
     const s = performance.now();
     const step = n => {
-      const k = (n-s)/ms;
-      setProgress(fromP + (1-fromP)*k);
+      const k = (n - s) / ms;
+      setProgress(fromP + (1 - fromP) * k);
       if(k < 1) rafId = requestAnimationFrame(step);
     };
     rafId = requestAnimationFrame(step);
@@ -325,20 +307,18 @@
       el.appendChild(img);
     } else {
       const v = document.createElement('video');
-      v.src = item.url;
-      v.muted      = !!CFG.muteVideo;
+      v.src         = item.url;
+      v.muted       = true; // стартуем muted (требование браузеров для autoplay)
       v.playsInline = true;
-      v.preload    = 'auto';
-      v.autoplay   = false; // запускаем вручную после mount
+      v.preload     = 'auto';
 
       let fired = false;
-      const fire = () => { if(!fired){ fired=true; onReady(el); } };
+      const fire = () => { if(!fired){ fired = true; onReady(el); } };
 
-      v.oncanplay      = fire;
-      v.onloadeddata   = fire;
-      v.onloadedmetadata = () => { if(!fired) setTimeout(fire, 400); };
-      // жёсткий фолбэк — если ничего не сработало за 4с, показываем как есть
-      setTimeout(() => { if(!fired){ fired=true; onReady(el); } }, 4000);
+      v.oncanplay        = fire;
+      v.onloadeddata     = fire;
+      v.onloadedmetadata = () => { if(!fired) setTimeout(fire, 500); };
+      setTimeout(() => { if(!fired){ fired = true; onReady(el); } }, 4000);
       v.onerror = onFail;
 
       el.appendChild(v);
@@ -348,7 +328,8 @@
 
   function syncTick(){
     if(!running || !playlist.length) return;
-    showSlide(playlist[currentSlot().i], currentSlot());
+    const slot = currentSlot();
+    showSlide(playlist[slot.i], slot);
   }
 
   function showSlide(item, slot){
@@ -358,18 +339,7 @@
       r => mountSlide(r, item, slot),
       () => setTimeout(syncTick, 300)
     );
-    // гард: если onReady не позвали за 6с — пропускаем
     el._guard = setTimeout(() => { if(currentSlide !== el){ el.remove(); syncTick(); } }, 6000);
-  }
-
-  async function playVideo(v){
-    try {
-      await v.play();
-    } catch(e){
-      // Autoplay заблокирован со звуком — пробуем без звука
-      v.muted = true;
-      try { await v.play(); } catch(e2){}
-    }
   }
 
   function mountSlide(el, item, slot){
@@ -377,14 +347,14 @@
     const remMs = Math.max(slot.remaining, 0.05) * 1000;
 
     stage.appendChild(el);
-    void el.offsetWidth; // force reflow для transition
+    void el.offsetWidth;
     el.classList.add('visible');
 
     const prev = currentSlide;
     currentSlide = el;
     if(prev){
       prev.classList.remove('visible');
-      setTimeout(() => prev.remove(), 900);
+      setTimeout(() => prev.remove(), 950);
     }
 
     if(item.type === 'image'){
@@ -394,22 +364,28 @@
       advanceTimer = setTimeout(syncTick, remMs);
     } else {
       const v = el.querySelector('video');
-      // Устанавливаем позицию и запускаем
       if(isFinite(v.duration) && v.duration > 0){
         try { v.currentTime = Math.min(slot.localOffset, v.duration - 0.1); } catch(e){}
       }
-      playVideo(v);
+      // Запускаем muted, затем сразу пробуем включить звук
+      v.play().then(() => {
+        if(!CFG.muteVideo){
+          v.muted = false;
+        }
+      }).catch(() => {
+        // если заблокировано — остаёмся muted
+      });
       v.addEventListener('timeupdate', () => {
         if(v.duration) setProgress(v.currentTime / v.duration);
       });
-      v.addEventListener('ended', () => syncTick());
+      v.addEventListener('ended', syncTick);
       advanceTimer = setTimeout(syncTick, remMs);
     }
   }
 
   async function applyPlaylist(data){
     if(data.config) CFG = Object.assign({}, DEFAULTS, data.config);
-    if(!CFG.showClock) clockEl.closest('.sidebar').classList.add('hidden');
+    if(!CFG.showClock) clockEl.classList.add('hidden');
     if(!CFG.showLogo)  logoEl.classList.add('hidden');
 
     const items = (data.items || []).map(it => ({
@@ -419,23 +395,29 @@
 
     if(items.length === 0){
       running = false; clearAdvance();
-      if(currentSlide){ currentSlide.classList.remove('visible'); const c=currentSlide; setTimeout(()=>c.remove(),900); currentSlide=null; }
+      if(currentSlide){
+        currentSlide.classList.remove('visible');
+        const c = currentSlide;
+        setTimeout(() => c.remove(), 950);
+        currentSlide = null;
+      }
       emptyEl.classList.remove('hidden');
       signature = data.signature || '';
       return;
     }
 
     emptyEl.classList.add('hidden');
-    playlist = items; signature = data.signature || '';
+    playlist = items;
+    signature = data.signature || '';
     await buildTimeline(items);
     tickClock();
-    if(!running){ running=true; syncTick(); }
+    if(!running){ running = true; syncTick(); }
   }
 
   async function poll(){
     try {
       const data = await fetchPlaylist();
-      if((data.signature||'') !== signature) await applyPlaylist(data);
+      if((data.signature || '') !== signature) await applyPlaylist(data);
     } catch(e){}
   }
 
