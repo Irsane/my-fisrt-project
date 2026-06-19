@@ -245,10 +245,13 @@
   let CFG = Object.assign({}, DEFAULTS);
 
   const stage      = document.getElementById('media-frame');
-  const emptyEl   = document.getElementById('empty');
-  const clockEl   = document.getElementById('clock');
-  const logoEl    = document.getElementById('logo');
-  const routeFill = document.getElementById('routeFill');
+  const emptyEl    = document.getElementById('empty');
+  const clockEl    = document.getElementById('clock');
+  const clockTime  = clockEl.querySelector('.time');
+  const clockDay   = clockEl.querySelector('.weekday');
+  const clockDate  = clockEl.querySelector('.date');
+  const logoEl     = document.getElementById('logo');
+  const routeFill  = document.getElementById('routeFill');
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let playlist = [], starts = [], total = 0, signature = '';
@@ -311,26 +314,10 @@
     return r.json();
   }
 
-  function probeVideo(url){
-    return new Promise(resolve => {
-      const v = document.createElement('video');
-      let done = false;
-      const finish = d => {
-        if(done) return; done = true;
-        try{ v.removeAttribute('src'); v.load(); } catch(e){}
-        resolve(d);
-      };
-      v.preload = 'metadata'; v.muted = true; v.src = url;
-      v.onloadedmetadata = () => finish(isFinite(v.duration) && v.duration > 0 ? v.duration : CFG.videoFallback);
-      v.onerror = () => finish(CFG.videoFallback);
-      setTimeout(() => finish(CFG.videoFallback), 10000);
-    });
-  }
-
-  async function buildTimeline(items){
-    const durs = await Promise.all(items.map(it =>
-      it.type === 'image' ? Promise.resolve(CFG.imageDuration) : probeVideo(it.url)
-    ));
+  // Не зондируем видео заранее — это создаёт N скрытых декодеров и убивает ТВ.
+  // Длину видео узнаём во время воспроизведения; для таймлайна используем videoFallback.
+  function buildTimeline(items){
+    const durs = items.map(it => it.type === 'image' ? CFG.imageDuration : CFG.videoFallback);
     starts = [0];
     for(let i = 0; i < durs.length; i++) starts.push(starts[i] + Math.max(durs[i], 0.5));
     total = starts[starts.length - 1] || 1;
@@ -350,10 +337,9 @@
   function tickClock(){
     if(!CFG.showClock) return;
     const d = new Date(Date.now() + serverOffset);
-    clockEl.querySelector('.time').textContent =
-      `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    clockEl.querySelector('.weekday').textContent = DAYS[d.getDay()];
-    clockEl.querySelector('.date').textContent    = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    clockTime.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    clockDay.textContent  = DAYS[d.getDay()];
+    clockDate.textContent = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
   }
   setInterval(tickClock, 1000);
 
@@ -390,7 +376,7 @@
       v.src         = item.url;
       v.muted       = true;
       v.playsInline = true;
-      v.preload     = 'auto';
+      v.preload     = 'metadata'; // 'auto' заставляет ТВ буферизовать всё сразу
 
       let fired = false;
       const fire = () => { if(!fired){ fired = true; onReady(el); } };
@@ -448,18 +434,13 @@
       if(isFinite(v.duration) && v.duration > 0){
         try { v.currentTime = Math.min(slot.localOffset, v.duration - 0.1); } catch(e){}
       }
-      const wantSound = soundOn && !CFG.muteVideo;
-      // если звук уже разрешён — пробуем сразу со звуком
-      v.muted = !wantSound;
+      // Всегда стартуем muted — браузер всегда разрешает.
+      // Если пользователь уже нажал кнопку звука, снимаем muted после старта.
+      v.muted = true;
       v.volume = VOLUME;
       v.play().then(() => {
-        // если хотели звук, но пришлось стартовать muted — пробуем снять mute
-        if(wantSound && v.muted){ v.muted = false; }
-      }).catch(() => {
-        // не дали со звуком — откатываемся на muted и играем
-        v.muted = true;
-        v.play().catch(() => {});
-      });
+        if(soundOn && !CFG.muteVideo){ v.muted = false; }
+      }).catch(() => {});
       v.addEventListener('timeupdate', () => {
         if(v.duration) setProgress(v.currentTime / v.duration);
       });
@@ -501,7 +482,7 @@
       if(hasVideo && !CFG.muteVideo && !soundOn) soundHint.classList.remove('gone');
       else soundHint.classList.add('gone');
     }
-    await buildTimeline(items);
+    buildTimeline(items);
     tickClock();
     if(!running){ running = true; syncTick(); }
   }
@@ -522,8 +503,8 @@
       emptyEl.querySelector('h1').textContent = 'Нет связи с сервером';
       emptyEl.querySelector('p').innerHTML = 'Проверьте, что сервер запущен, и обновите страницу.';
     }
-    setInterval(poll, 8000);
-    setInterval(syncTime, 60000);
+    setInterval(poll, 30000);
+    setInterval(syncTime, 300000);
   }
 
   boot();
