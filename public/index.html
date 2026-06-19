@@ -241,6 +241,7 @@
   'use strict';
 
   const EPOCH = 0;
+  const BUILD = 'build-8'; // версия кода; при изменении страница сама перезагрузится
   const DEFAULTS = { imageDuration: 10, muteVideo: false, showClock: true, showLogo: true, videoFallback: 30 };
   let CFG = Object.assign({}, DEFAULTS);
 
@@ -258,28 +259,59 @@
   let currentSlide = null, advanceTimer = null, rafId = null, running = false;
   let serverOffset = 0;
 
-  // ── Звук: браузеры разрешают звук только после первого действия пользователя ──
-  const VOLUME = 0.1; // громкость видео (0..1) — очень тихо
+  // ── Звук через Web Audio API ──
+  // Свойство video.volume на телефонах и многих ТВ ИГНОРИРУЕТСЯ железом.
+  // Поэтому громкость регулируем через GainNode — он работает везде.
+  const VOLUME = 0.1; // громкость видео (0..1)
   let soundOn = false;
   const soundHint = document.getElementById('soundhint');
 
-  // Вызывается СИНХРОННО внутри обработчика события — это критично для iOS Safari
+  let audioCtx = null, gainNode = null;
+  const sourceMap = new WeakMap(); // video -> MediaElementSourceNode (создаётся 1 раз)
+
+  function ensureAudioGraph(){
+    if(audioCtx) return true;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return false;
+      audioCtx = new AC();
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = VOLUME;
+      gainNode.connect(audioCtx.destination);
+      return true;
+    } catch(e){ audioCtx = null; return false; }
+  }
+
+  // Подключаем видео к графу громкости (один раз на элемент)
+  function routeVideo(v){
+    if(!ensureAudioGraph()) { v.volume = VOLUME; return; } // фолбэк
+    if(sourceMap.has(v)) return;
+    try {
+      const src = audioCtx.createMediaElementSource(v);
+      src.connect(gainNode);
+      sourceMap.set(v, src);
+    } catch(e){ try { v.volume = VOLUME; } catch(_){} }
+  }
+
+  // Вызывается СИНХРОННО внутри обработчика события — критично для iOS
   function enableSound(){
     if(soundOn) return;
     soundOn = true;
     if(soundHint) soundHint.classList.add('gone');
-    // Найти текущее видео и сразу запустить со звуком (в стеке жеста)
+    ensureAudioGraph();
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
     const v = currentSlide && currentSlide.querySelector && currentSlide.querySelector('video');
     if(v && !CFG.muteVideo){
+      routeVideo(v);
       v.muted = false;
-      v.volume = VOLUME;
-      v.play().catch(() => { v.muted = true; v.play().catch(()=>{}); });
+      v.play().catch(()=>{});
     }
   }
   function unmuteCurrent(){
     if(CFG.muteVideo || !soundOn || !currentSlide) return;
+    if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
     const v = currentSlide.querySelector && currentSlide.querySelector('video');
-    if(v){ v.muted = false; v.volume = VOLUME; v.play().catch(()=>{}); }
+    if(v){ routeVideo(v); v.muted = false; v.play().catch(()=>{}); }
   }
 
   // Кнопка soundhint: onclick вызывается синхронно — iOS это принимает как жест
@@ -440,18 +472,17 @@
       if(isFinite(v.duration) && v.duration > 0){
         try { v.currentTime = Math.min(slot.localOffset, v.duration - 0.1); } catch(e){}
       }
-      // Всегда стартуем muted — браузер всегда разрешает.
-      // Если пользователь уже нажал кнопку звука, снимаем muted после старта.
+      // Всегда стартуем muted — браузер всегда разрешает автоплей без звука.
       v.muted = true;
-      // Громкость нужно выставлять НА событиях — иначе браузер сбрасывает её к 1.0
-      // при загрузке источника, и кажется что звук не убавляется.
-      const applyVol = () => { v.volume = VOLUME; };
-      applyVol();
-      v.addEventListener('loadeddata', applyVol);
-      v.addEventListener('playing', applyVol);
+      v.volume = VOLUME; // фолбэк, если Web Audio недоступен
       v.play().then(() => {
-        applyVol();
-        if(soundOn && !CFG.muteVideo){ v.muted = false; applyVol(); }
+        // Если звук уже разрешён пользователем — подключаем к графу и снимаем mute.
+        // Громкость задаёт GainNode (работает на ТВ/телефонах, в отличие от .volume).
+        if(soundOn && !CFG.muteVideo){
+          routeVideo(v);
+          if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+          v.muted = false;
+        }
       }).catch(() => {});
       v.addEventListener('timeupdate', () => {
         if(v.duration) setProgress(v.currentTime / v.duration);
@@ -525,6 +556,19 @@
     } catch(e){}
   }
 
+  // ── Авто-обновление: табло сутками не перезагружается само ──
+  // Проверяем, не вышла ли новая версия кода, и перезагружаем страницу.
+  async function checkVersion(){
+    try {
+      const r = await fetch('/?v=' + Date.now(), { cache: 'no-store' });
+      const html = await r.text();
+      const m = html.match(/BUILD\s*=\s*'([^']+)'/);
+      if(m && m[1] && m[1] !== BUILD){
+        location.reload();
+      }
+    } catch(e){}
+  }
+
   async function boot(){
     await syncTime();
     try {
@@ -536,6 +580,7 @@
     }
     setInterval(poll, 30000);
     setInterval(syncTime, 300000);
+    setInterval(checkVersion, 120000); // раз в 2 минуты
   }
 
   boot();
