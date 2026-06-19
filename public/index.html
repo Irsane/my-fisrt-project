@@ -21,12 +21,12 @@
     overflow: hidden; -webkit-font-smoothing: antialiased; cursor: none;
   }
 
-  #stage { position: fixed; inset: 0; background: #000; }
+  #stage { position: fixed; inset: 0; background: #07130D; }
 
   /* ── Слайд + стильный переход (мягкое растворение с расфокусом) ── */
   .slide {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    background: #000; opacity: 0; filter: blur(18px) saturate(1.05);
+    background: #07130D; opacity: 0; filter: blur(18px) saturate(1.05);
     transform: scale(1.012);
     transition: opacity 1.2s cubic-bezier(.4,0,.2,1),
                 filter  1.2s cubic-bezier(.4,0,.2,1),
@@ -109,6 +109,8 @@
   @media (max-width: 600px) {
     :root { --pad: 14px; }
     body { cursor: auto; }
+    /* На телефоне слайд целиком — «поля» сливаются с тёмным фоном сцены. */
+    .slide img { object-fit: contain; }
     .top { align-items: center; gap: 10px; flex-wrap: nowrap; }
     .logo { padding: 7px 14px 7px 8px; gap: 8px; }
     .logo svg { width: 28px; height: 28px; }
