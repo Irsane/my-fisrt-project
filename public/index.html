@@ -151,6 +151,25 @@
   #empty p  { color: var(--muted); font-size: 17px; line-height: 1.65; }
   #empty code { color: var(--brand); }
 
+  /* ── Кнопка включения звука ── */
+  #soundhint {
+    position: fixed; z-index: 8;
+    left: 50%; bottom: calc(var(--pad) + 22px);
+    transform: translateX(-50%);
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 11px 20px;
+    background: rgba(7,16,10,.82);
+    border: 1px solid rgba(45,190,0,.4);
+    border-radius: 999px;
+    color: #fff; font-size: 15px; font-weight: 500;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 28px rgba(0,0,0,.5);
+    cursor: pointer; pointer-events: auto;
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  #soundhint svg { display: block; }
+  #soundhint.gone { opacity: 0; transform: translateX(-50%) translateY(10px); pointer-events: none; }
+
   .hidden { display: none !important; }
 
   /* ── Мобильная адаптация ── */
@@ -203,6 +222,13 @@
   </div>
 </div>
 
+<div id="soundhint">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2DBE00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/>
+  </svg>
+  <span>Нажмите для звука</span>
+</div>
+
 <div id="empty">
   <div>
     <h1>Папка пуста</h1>
@@ -228,6 +254,26 @@
   let playlist = [], starts = [], total = 0, signature = '';
   let currentSlide = null, advanceTimer = null, rafId = null, running = false;
   let serverOffset = 0;
+
+  // ── Звук: браузеры разрешают звук только после первого действия пользователя ──
+  let soundOn = false;
+  const soundHint = document.getElementById('soundhint');
+  function enableSound(){
+    if(soundOn) return;
+    soundOn = true;
+    if(soundHint) soundHint.classList.add('gone');
+    // включаем звук у текущего видео сразу
+    unmuteCurrent();
+  }
+  function unmuteCurrent(){
+    if(CFG.muteVideo || !soundOn || !currentSlide) return;
+    const v = currentSlide.querySelector && currentSlide.querySelector('video');
+    if(v){ v.muted = false; v.volume = 1; v.play().catch(()=>{}); }
+  }
+  // любое действие включает звук (один раз достаточно)
+  ['click','touchstart','keydown','pointerdown'].forEach(ev =>
+    addEventListener(ev, enableSound, { once: false, passive: true })
+  );
 
   // ── Синхронизация времени ──
   async function syncTime(){
@@ -382,7 +428,18 @@
       if(isFinite(v.duration) && v.duration > 0){
         try { v.currentTime = Math.min(slot.localOffset, v.duration - 0.1); } catch(e){}
       }
-      v.play().catch(() => {});
+      const wantSound = soundOn && !CFG.muteVideo;
+      // если звук уже разрешён — пробуем сразу со звуком
+      v.muted = !wantSound;
+      v.volume = 1;
+      v.play().then(() => {
+        // если хотели звук, но пришлось стартовать muted — пробуем снять mute
+        if(wantSound && v.muted){ v.muted = false; }
+      }).catch(() => {
+        // не дали со звуком — откатываемся на muted и играем
+        v.muted = true;
+        v.play().catch(() => {});
+      });
       v.addEventListener('timeupdate', () => {
         if(v.duration) setProgress(v.currentTime / v.duration);
       });
@@ -417,6 +474,13 @@
     emptyEl.classList.add('hidden');
     playlist = items;
     signature = data.signature || '';
+
+    // кнопка звука нужна только если есть видео и звук не отключён
+    const hasVideo = items.some(it => it.type === 'video');
+    if(soundHint){
+      if(hasVideo && !CFG.muteVideo && !soundOn) soundHint.classList.remove('gone');
+      else soundHint.classList.add('gone');
+    }
     await buildTimeline(items);
     tickClock();
     if(!running){ running = true; syncTick(); }
