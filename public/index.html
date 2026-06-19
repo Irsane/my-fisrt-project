@@ -437,9 +437,15 @@
       // Всегда стартуем muted — браузер всегда разрешает.
       // Если пользователь уже нажал кнопку звука, снимаем muted после старта.
       v.muted = true;
-      v.volume = VOLUME;
+      // Громкость нужно выставлять НА событиях — иначе браузер сбрасывает её к 1.0
+      // при загрузке источника, и кажется что звук не убавляется.
+      const applyVol = () => { v.volume = VOLUME; };
+      applyVol();
+      v.addEventListener('loadeddata', applyVol);
+      v.addEventListener('playing', applyVol);
       v.play().then(() => {
-        if(soundOn && !CFG.muteVideo){ v.muted = false; }
+        applyVol();
+        if(soundOn && !CFG.muteVideo){ v.muted = false; applyVol(); }
       }).catch(() => {});
       v.addEventListener('timeupdate', () => {
         if(v.duration) setProgress(v.currentTime / v.duration);
