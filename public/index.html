@@ -256,6 +256,7 @@
   let serverOffset = 0;
 
   // ── Звук: браузеры разрешают звук только после первого действия пользователя ──
+  const VOLUME = 0.4; // громкость видео (0..1)
   let soundOn = false;
   const soundHint = document.getElementById('soundhint');
   function enableSound(){
@@ -268,7 +269,7 @@
   function unmuteCurrent(){
     if(CFG.muteVideo || !soundOn || !currentSlide) return;
     const v = currentSlide.querySelector && currentSlide.querySelector('video');
-    if(v){ v.muted = false; v.volume = 1; v.play().catch(()=>{}); }
+    if(v){ v.muted = false; v.volume = VOLUME; v.play().catch(()=>{}); }
   }
   // любое действие включает звук (один раз достаточно)
   ['click','touchstart','keydown','pointerdown'].forEach(ev =>
@@ -431,7 +432,7 @@
       const wantSound = soundOn && !CFG.muteVideo;
       // если звук уже разрешён — пробуем сразу со звуком
       v.muted = !wantSound;
-      v.volume = 1;
+      v.volume = VOLUME;
       v.play().then(() => {
         // если хотели звук, но пришлось стартовать muted — пробуем снять mute
         if(wantSound && v.muted){ v.muted = false; }
