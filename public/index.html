@@ -78,12 +78,11 @@
   }
   .clock .time {
     font-size: clamp(40px, 4.4vw, 66px); font-weight: 700;
-    font-variant-numeric: tabular-nums; line-height: 1;
-    display: inline-block; white-space: nowrap;
+    font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: 1px;
   }
   .clock .dateline {
-    margin-top: 12px; display: inline-flex; align-items: baseline; justify-content: flex-end;
-    gap: 12px; line-height: 1; white-space: nowrap;
+    margin-top: 12px; display: flex; align-items: baseline; justify-content: flex-end;
+    gap: 12px; line-height: 1;
   }
   .clock .weekday {
     font-size: clamp(18px, 1.8vw, 28px); font-weight: 700;
@@ -261,25 +260,8 @@
     clockEl.querySelector('.time').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     clockEl.querySelector('.weekday').textContent = DAYS[d.getDay()];
     clockEl.querySelector('.date').textContent = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-    fitTimeWidth();
-  }
-  // Растягиваем время по ширине строки с датой (через межбуквенный интервал).
-  function fitTimeWidth(){
-    const timeEl = clockEl.querySelector('.time');
-    const lineEl = clockEl.querySelector('.dateline');
-    timeEl.style.letterSpacing = '0px';
-    timeEl.style.marginRight = '0px';
-    const chars = (timeEl.textContent || '').length;
-    const target = lineEl.offsetWidth;
-    const cur = timeEl.offsetWidth;
-    if (chars > 1 && target > cur){
-      const s = (target - cur) / (chars - 1);
-      timeEl.style.letterSpacing = s + 'px';
-      timeEl.style.marginRight = (-s) + 'px';
-    }
   }
   setInterval(tickClock, 1000);
-  addEventListener('resize', fitTimeWidth);
 
   // ── прогресс ──
   function setProgress(p){ p = Math.max(0, Math.min(1, p)); routeFill.style.width = (p*100)+'%'; routePin.style.left = (p*100)+'%'; }
