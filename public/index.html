@@ -95,6 +95,23 @@
   .route .pin { position: absolute; top: 50%; left: 0%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px rgba(45,190,0,.25), 0 0 14px rgba(45,190,0,.9); }
   .hidden { display: none !important; }
 
+  @media (max-width: 600px) {
+    :root { --pad: 14px; }
+    body { cursor: auto; }
+    .top { align-items: center; gap: 10px; flex-wrap: nowrap; }
+    .logo { padding: 7px 14px 7px 8px; gap: 8px; }
+    .logo svg { width: 28px; height: 28px; }
+    .logo .word { font-size: 18px; }
+    .clock { padding: 10px 14px 12px; border-radius: 16px; }
+    .clock .time { font-size: 28px; letter-spacing: 0; }
+    .clock .dateline { margin-top: 6px; gap: 6px; }
+    .clock .weekday { font-size: 13px; }
+    .clock .weekday::after { width: 4px; height: 4px; margin-left: 6px; }
+    .clock .date { font-size: 13px; }
+    .route { height: 3px; margin-bottom: 10px; }
+    .route .pin { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; }
+  }
+
   /* Экран-заглушка, когда в папке media пусто */
   #empty {
     position: fixed; inset: 0; z-index: 8; display: flex; align-items: center; justify-content: center;
