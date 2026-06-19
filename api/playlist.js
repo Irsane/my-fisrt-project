@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 
   res.status(200).json({
     signature,
-    config: { imageDuration: 10, muteVideo: true, showClock: true, showLogo: true, videoFallback: 15 },
+    config: { imageDuration: 10, muteVideo: false, showClock: true, showLogo: true, videoFallback: 15 },
     items,
   });
 }

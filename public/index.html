@@ -31,7 +31,6 @@
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
     background: #07130D; opacity: 0;
     transition: opacity 1.0s ease;
-    will-change: opacity;
   }
   .slide.visible { opacity: 1; }
 
@@ -203,7 +202,7 @@
   // Якорь общей шкалы времени — одинаков для всех экранов. Не меняйте.
   const EPOCH = 0;
 
-  const DEFAULTS = { imageDuration: 10, kenBurns: true, muteVideo: true, showClock: true, showLogo: true, videoFallback: 15 };
+  const DEFAULTS = { imageDuration: 10, kenBurns: true, muteVideo: false, showClock: true, showLogo: true, videoFallback: 30 };
   let CFG = Object.assign({}, DEFAULTS);
 
   const stage    = document.getElementById('stage');
