@@ -23,6 +23,13 @@
 
   #stage { position: fixed; inset: 0; background: #07130D; }
 
+  #testlabel {
+    position: fixed; left: 50%; bottom: 8%; transform: translateX(-50%);
+    z-index: 9; font-weight: 800; font-size: clamp(24px, 4vw, 64px);
+    color: #fff; letter-spacing: 1px; text-shadow: 0 4px 24px rgba(0,0,0,.6);
+    pointer-events: none; white-space: nowrap;
+  }
+
   /* ── Слайд + стильный переход (мягкое растворение с расфокусом) ── */
   .slide {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -143,6 +150,8 @@
 </head>
 <body>
   <div id="stage"></div>
+
+  <div id="testlabel">ИЛЬЯ KAKASHKA</div>
 
   <div id="overlay" class="overlay-hidden">
     <div class="top">
