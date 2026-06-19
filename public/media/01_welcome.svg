@@ -1,61 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
   <defs>
     <linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1FB13A"/>
+      <stop offset="0" stop-color="#23C13F"/>
       <stop offset="1" stop-color="#0A6F1B"/>
     </linearGradient>
-    <radialGradient id="glow1" cx="78%" cy="22%" r="60%">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".22"/>
+    <radialGradient id="glow1" cx="50%" cy="38%" r="55%">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".18"/>
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
     </radialGradient>
-    <clipPath id="sq1"><rect x="2" y="2" width="44" height="44" rx="12"/></clipPath>
   </defs>
 
   <rect width="1920" height="1080" fill="url(#bg1)"/>
   <rect width="1920" height="1080" fill="url(#glow1)"/>
 
   <!-- map decoration -->
-  <g stroke="#FFFFFF" stroke-opacity=".12" stroke-width="14" fill="none" stroke-linecap="round">
-    <path d="M-50 280 L700 280 L820 420 L2000 420"/>
-    <path d="M-50 760 L520 760 L640 880 L2000 880"/>
-    <path d="M300 -50 L300 540 L420 660 L420 1130"/>
-    <path d="M1500 -50 L1500 300 L1380 420 L1380 1130"/>
-  </g>
-  <g fill="#FFFFFF" fill-opacity=".06">
-    <rect x="120" y="360" width="140" height="320" rx="14"/>
-    <rect x="1560" y="500" width="180" height="240" rx="14"/>
-    <rect x="900" y="180" width="120" height="120" rx="14"/>
-  </g>
-  <!-- decorative pins -->
-  <g fill="#F5A623" opacity=".9">
-    <circle cx="1660" cy="250" r="10"/>
+  <g stroke="#FFFFFF" stroke-opacity=".10" stroke-width="16" fill="none" stroke-linecap="round">
+    <path d="M-50 250 L640 250 L780 390 L2000 390"/>
+    <path d="M-50 900 L560 900 L700 760 L2000 760"/>
+    <path d="M260 -50 L260 1130"/>
+    <path d="M1640 -50 L1640 1130"/>
   </g>
 
-  <!-- logo badge -->
-  <g transform="translate(120,90)">
-    <rect width="290" height="96" rx="48" fill="#FFFFFF"/>
-    <g transform="translate(28,20) scale(1.16)">
-      <g clip-path="url(#sq1)">
-        <rect x="0" y="0" width="48" height="48" fill="#ffffff"/>
-        <polygon points="0,0 48,0 48,13 0,16" fill="#F5A623"/>
-        <polygon points="0,19 48,16 48,38 0,41" fill="#3DAE36"/>
-        <polygon points="0,44 48,41 48,48 0,48" fill="#8DC63F"/>
-        <path d="M24 13 C18.5 13 14 17.3 14 22.5 C14 27 17.5 30.3 21.5 31.4 L21.5 36 C21.5 37.4 22.6 38.5 24 38.5 C25.4 38.5 26.5 37.4 26.5 36 L26.5 31.4 C30.5 30.3 34 27 34 22.5 C34 17.3 29.5 13 24 13 Z" fill="#1E88E5" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round"/>
-      </g>
-    </g>
-    <text x="116" y="62" font-size="44" font-weight="800" fill="#1a1a1a">2ГИС</text>
+  <!-- hero pin -->
+  <g transform="translate(960,400)">
+    <ellipse cx="0" cy="250" rx="120" ry="26" fill="#000000" opacity=".15"/>
+    <path d="M0 -150 C-83 -150 -150 -83 -150 0 C-150 100 0 250 0 250 C0 250 150 100 150 0 C150 -83 83 -150 0 -150 Z" fill="#FFFFFF"/>
+    <circle cx="0" cy="-10" r="66" fill="#2DBE00"/>
   </g>
 
-  <!-- main content -->
-  <g transform="translate(120,470)" fill="#FFFFFF">
-    <text font-size="124" font-weight="800" letter-spacing="-1">Добро</text>
-    <text y="140" font-size="124" font-weight="800" letter-spacing="-1">пожаловать</text>
-    <text y="230" font-size="48" font-weight="500" fill-opacity=".92">в офис 2ГИС — рады вас видеть</text>
-  </g>
-
-  <!-- big pin -->
-  <g transform="translate(1480,560)">
-    <path d="M0 -120 C-66 -120 -120 -66 -120 0 C-120 80 0 200 0 200 C0 200 120 80 120 0 C120 -66 66 -120 0 -120 Z" fill="#FFFFFF" opacity=".96"/>
-    <circle cx="0" cy="-8" r="52" fill="#2DBE00"/>
+  <!-- text -->
+  <g fill="#FFFFFF" text-anchor="middle">
+    <text x="960" y="800" font-size="130" font-weight="800" letter-spacing="-1">Добро пожаловать</text>
+    <text x="960" y="888" font-size="46" font-weight="500" fill-opacity=".92">в офис 2ГИС — рады вас видеть</text>
   </g>
 </svg>

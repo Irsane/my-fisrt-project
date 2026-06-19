@@ -35,8 +35,10 @@
   }
   .slide.visible { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
 
-  .slide img { position: relative; width: 100%; height: 100%; object-fit: cover; }
+  .slide img { position: relative; width: 100%; height: 100%; object-fit: contain; }
   .slide video { width: 100%; height: 100%; object-fit: contain; }
+  /* Дрейф отключён — изображение всегда видно целиком, ничего не скрывается. */
+  .slide.pan img { animation: none !important; transform: none !important; }
 
   /* Размытая заливка фона — чтобы не было чёрных полос, когда картинка
      показывается целиком (контейн) на экранах с другим соотношением сторон. */

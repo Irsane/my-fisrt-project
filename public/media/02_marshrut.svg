@@ -1,62 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
   <defs>
     <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0E3A6B"/>
+      <stop offset="0" stop-color="#103E73"/>
       <stop offset="1" stop-color="#06203F"/>
     </linearGradient>
-    <radialGradient id="glow2" cx="20%" cy="20%" r="70%">
-      <stop offset="0" stop-color="#2DBE00" stop-opacity=".22"/>
+    <radialGradient id="glow2" cx="50%" cy="45%" r="60%">
+      <stop offset="0" stop-color="#2DBE00" stop-opacity=".18"/>
       <stop offset="1" stop-color="#2DBE00" stop-opacity="0"/>
     </radialGradient>
-    <clipPath id="sq2"><rect x="2" y="2" width="44" height="44" rx="12"/></clipPath>
     <filter id="rshadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#2DBE00" flood-opacity=".8"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#2DBE00" flood-opacity=".85"/>
     </filter>
   </defs>
 
   <rect width="1920" height="1080" fill="url(#bg2)"/>
   <rect width="1920" height="1080" fill="url(#glow2)"/>
 
-  <!-- map grid -->
-  <g stroke="#FFFFFF" stroke-opacity=".07" stroke-width="2">
-    <path d="M0 180 H1920 M0 380 H1920 M0 580 H1920 M0 780 H1920 M0 980 H1920"/>
-    <path d="M240 0 V1080 M560 0 V1080 M880 0 V1080 M1200 0 V1080 M1520 0 V1080"/>
+  <!-- grid -->
+  <g stroke="#FFFFFF" stroke-opacity=".06" stroke-width="2">
+    <path d="M0 220 H1920 M0 420 H1920 M0 620 H1920 M0 820 H1920"/>
+    <path d="M320 0 V1080 M640 0 V1080 M960 0 V1080 M1280 0 V1080 M1600 0 V1080"/>
   </g>
 
-  <!-- route line -->
-  <path d="M360 820 C520 820 540 560 760 560 C1000 560 980 320 1240 320 L1520 320"
-        fill="none" stroke="#2DBE00" stroke-width="16" stroke-linecap="round" filter="url(#rshadow)"/>
-  <path d="M360 820 C520 820 540 560 760 560 C1000 560 980 320 1240 320 L1520 320"
-        fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 26" opacity=".9"/>
+  <!-- headline -->
+  <text x="960" y="300" text-anchor="middle" fill="#FFFFFF" font-size="128" font-weight="800" letter-spacing="-1">Построим маршрут</text>
+  <text x="960" y="380" text-anchor="middle" fill="#FFFFFF" fill-opacity=".82" font-size="44" font-weight="500">Быстрая навигация по городу — пешком, на авто и транспорте</text>
 
-  <!-- start point -->
-  <circle cx="360" cy="820" r="20" fill="#FFFFFF"/>
-  <circle cx="360" cy="820" r="10" fill="#2DBE00"/>
-  <!-- end pin -->
-  <g transform="translate(1520,320)">
-    <path d="M0 -70 C-39 -70 -70 -39 -70 0 C-70 47 0 118 0 118 C0 118 70 47 70 0 C70 -39 39 -70 0 -70 Z" fill="#F5A623"/>
-    <circle cx="0" cy="-5" r="28" fill="#FFFFFF"/>
-  </g>
+  <!-- route -->
+  <path d="M360 760 C560 760 580 560 820 560 C1080 560 1060 600 1300 600 L1560 600"
+        fill="none" stroke="#2DBE00" stroke-width="18" stroke-linecap="round" filter="url(#rshadow)"/>
+  <path d="M360 760 C560 760 580 560 820 560 C1080 560 1060 600 1300 600 L1560 600"
+        fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 28" opacity=".9"/>
 
-  <!-- logo badge -->
-  <g transform="translate(120,90)">
-    <rect width="290" height="96" rx="48" fill="#FFFFFF"/>
-    <g transform="translate(28,20) scale(1.16)">
-      <g clip-path="url(#sq2)">
-        <rect x="0" y="0" width="48" height="48" fill="#ffffff"/>
-        <polygon points="0,0 48,0 48,13 0,16" fill="#F5A623"/>
-        <polygon points="0,19 48,16 48,38 0,41" fill="#3DAE36"/>
-        <polygon points="0,44 48,41 48,48 0,48" fill="#8DC63F"/>
-        <path d="M24 13 C18.5 13 14 17.3 14 22.5 C14 27 17.5 30.3 21.5 31.4 L21.5 36 C21.5 37.4 22.6 38.5 24 38.5 C25.4 38.5 26.5 37.4 26.5 36 L26.5 31.4 C30.5 30.3 34 27 34 22.5 C34 17.3 29.5 13 24 13 Z" fill="#1E88E5" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round"/>
-      </g>
-    </g>
-    <text x="116" y="62" font-size="44" font-weight="800" fill="#1a1a1a">2ГИС</text>
-  </g>
-
-  <!-- text -->
-  <g transform="translate(120,300)" fill="#FFFFFF">
-    <text font-size="120" font-weight="800" letter-spacing="-1">Построим</text>
-    <text y="138" font-size="120" font-weight="800" letter-spacing="-1">маршрут</text>
-    <text y="226" font-size="46" font-weight="500" fill-opacity=".85">Быстрая навигация по городу — пешком, на авто и транспорте</text>
+  <circle cx="360" cy="760" r="22" fill="#FFFFFF"/>
+  <circle cx="360" cy="760" r="11" fill="#2DBE00"/>
+  <g transform="translate(1560,600)">
+    <path d="M0 -80 C-44 -80 -80 -44 -80 0 C-80 53 0 132 0 132 C0 132 80 53 80 0 C80 -44 44 -80 0 -80 Z" fill="#F5A623"/>
+    <circle cx="0" cy="-6" r="32" fill="#FFFFFF"/>
   </g>
 </svg>
