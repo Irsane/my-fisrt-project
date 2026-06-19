@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>2ГИС — Экран офиса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --brand: #2DBE00;
@@ -76,12 +79,13 @@
   .clock {
     text-align: right; padding: 6px 4px;
     text-shadow: 0 2px 18px rgba(0,0,0,.55);
+    font-family: "Geist", var(--font);
   }
   .clock .time {
     display: inline-block;
-    font-size: clamp(44px, 4.8vw, 74px); font-weight: 800;
-    font-variant-numeric: tabular-nums; line-height: .98; letter-spacing: -2px;
-    white-space: nowrap;
+    font-size: clamp(46px, 5vw, 78px); font-weight: 600;
+    font-feature-settings: "tnum" 1; font-variant-numeric: tabular-nums;
+    line-height: .98; letter-spacing: -1px; white-space: nowrap;
   }
   .clock .dateline {
     margin-top: 12px; display: flex; align-items: center; justify-content: flex-end;
@@ -122,7 +126,7 @@
     .logo svg { width: 28px; height: 28px; }
     .logo .word { font-size: 18px; }
     .clock { padding: 2px; }
-    .clock .time { font-size: 30px; letter-spacing: -1px; font-weight: 800; }
+    .clock .time { font-size: 32px; letter-spacing: -.5px; font-weight: 600; }
     .clock .dateline { margin-top: 6px; gap: 7px; }
     .clock .weekday { font-size: 12px; gap: 6px; }
     .clock .weekday::before { width: 5px; height: 5px; }
@@ -284,7 +288,10 @@
     const target = d.offsetWidth;
     const natural = t.scrollWidth;
     const n = (t.textContent || '').length || 1;
-    const ls = (target - natural) / n;
+    // тянемся к ширине даты, но мягко: только часть промежутка и с потолком
+    const fs = parseFloat(getComputedStyle(t).fontSize) || 60;
+    let ls = ((target - natural) / n) * 0.6;
+    ls = Math.min(ls, fs * 0.14);
     if (ls > 0){ t.style.letterSpacing = ls + 'px'; t.style.marginRight = (-ls) + 'px'; }
   }
   addEventListener('resize', fitTimeWidth);
