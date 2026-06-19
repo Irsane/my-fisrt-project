@@ -1,17 +1,17 @@
 export default [
   {
-    "name": "01_marshrut.png",
-    "size": 41186,
-    "mtime": 1781843079096
+    "name": "01_welcome.svg",
+    "size": 2944,
+    "mtime": 1781862242154
   },
   {
-    "name": "02_ryadom.png",
-    "size": 43846,
-    "mtime": 1781843079096
+    "name": "02_marshrut.svg",
+    "size": 3249,
+    "mtime": 1781862260482
   },
   {
-    "name": "03_welcome.png",
-    "size": 34985,
-    "mtime": 1781843079097
+    "name": "03_ryadom.svg",
+    "size": 3857,
+    "mtime": 1781862281410
   }
 ];
