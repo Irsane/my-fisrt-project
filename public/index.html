@@ -241,7 +241,7 @@
   'use strict';
 
   const EPOCH = 0;
-  const BUILD = 'build-8'; // версия кода; при изменении страница сама перезагрузится
+  const BUILD = 'build-9'; // версия кода; при изменении страница сама перезагрузится
   const DEFAULTS = { imageDuration: 10, muteVideo: false, showClock: true, showLogo: true, videoFallback: 30 };
   let CFG = Object.assign({}, DEFAULTS);
 
@@ -390,7 +390,8 @@
     routeFill.style.transform  = 'scaleX(1)';
   }
 
-  function clearAdvance(){ clearTimeout(advanceTimer); cancelAnimationFrame(rafId); }
+  let stallTimer = null;
+  function clearAdvance(){ clearTimeout(advanceTimer); if(stallTimer){ clearInterval(stallTimer); stallTimer = null; } }
 
   // ── Строим слайд ──
   function buildSlide(item, onReady, onFail){
@@ -431,6 +432,18 @@
     showSlide(playlist[slot.i], slot);
   }
 
+  // Переходим к следующему слайду по порядку (не пересинхронизируем по часам)
+  function nextSlide(){
+    if(!running || !playlist.length) return;
+    const cur = playlist.findIndex((_, i) => {
+      const el = currentSlide;
+      return el && el._itemIdx === i;
+    });
+    const next = (cur < 0 || cur >= playlist.length - 1) ? 0 : cur + 1;
+    const dur = starts[next + 1] - starts[next];
+    showSlide(playlist[next], { i: next, dur, localOffset: 0, remaining: dur });
+  }
+
   function showSlide(item, slot){
     clearAdvance();
     const el = buildSlide(
@@ -438,12 +451,14 @@
       r => mountSlide(r, item, slot),
       () => setTimeout(syncTick, 300)
     );
-    el._guard = setTimeout(() => { if(currentSlide !== el){ el.remove(); syncTick(); } }, 6000);
+    el._guard = setTimeout(() => { if(currentSlide !== el){ el.remove(); } else { nextSlide(); } }, 6000);
   }
 
   function mountSlide(el, item, slot){
     clearTimeout(el._guard);
     const remMs = Math.max(slot.remaining, 0.05) * 1000;
+
+    el._itemIdx = slot.i;
 
     stage.appendChild(el);
     void el.offsetWidth;
@@ -466,7 +481,7 @@
       const startP = slot.dur > 0 ? slot.localOffset / slot.dur : 0;
       setProgress(startP);
       animateProgress(startP, remMs);
-      advanceTimer = setTimeout(syncTick, remMs);
+      advanceTimer = setTimeout(nextSlide, remMs);
     } else {
       const v = el.querySelector('video');
       if(isFinite(v.duration) && v.duration > 0){
@@ -474,21 +489,36 @@
       }
       // Всегда стартуем muted — браузер всегда разрешает автоплей без звука.
       v.muted = true;
-      v.volume = VOLUME; // фолбэк, если Web Audio недоступен
+      v.volume = VOLUME;
       v.play().then(() => {
-        // Если звук уже разрешён пользователем — подключаем к графу и снимаем mute.
-        // Громкость задаёт GainNode (работает на ТВ/телефонах, в отличие от .volume).
         if(soundOn && !CFG.muteVideo){
           routeVideo(v);
           if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
           v.muted = false;
         }
       }).catch(() => {});
+
       v.addEventListener('timeupdate', () => {
         if(v.duration) setProgress(v.currentTime / v.duration);
       });
-      v.addEventListener('ended', syncTick);
-      advanceTimer = setTimeout(syncTick, remMs);
+
+      // ended: переходим к СЛЕДУЮЩЕМУ по порядку (не пересинхронизируем по часам —
+      // это вызывало бесконечный цикл когда видео короче videoFallback)
+      v.addEventListener('ended', nextSlide);
+
+      // Сторожевой таймер: если currentTime не двигается — видео зависло, пропускаем
+      let lastTime = -1, stallCount = 0;
+      stallTimer = setInterval(() => {
+        if(currentSlide !== el){ clearInterval(stallTimer); stallTimer = null; return; }
+        if(v.ended){ nextSlide(); return; }
+        if(v.paused && !v.ended){ v.play().catch(()=>{}); }
+        if(v.currentTime === lastTime){ stallCount++; if(stallCount >= 3){ nextSlide(); return; } }
+        else { stallCount = 0; }
+        lastTime = v.currentTime;
+      }, 2000);
+
+      // Абсолютный фолбэк по времени (на случай если видео намного длиннее fallback)
+      advanceTimer = setTimeout(nextSlide, remMs);
     }
 
     // Предзагрузка следующего файла, чтобы не было лага при переключении
