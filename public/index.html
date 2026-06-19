@@ -57,27 +57,37 @@
   .overlay-hidden { opacity: 0; }
   .top { display: flex; align-items: flex-start; justify-content: space-between; padding: var(--pad); }
   .logo {
-    display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 13px;
-    background: rgba(0,0,0,.34); backdrop-filter: blur(8px); border-radius: 999px;
-    box-shadow: 0 6px 26px rgba(0,0,0,.35);
+    display: flex; align-items: center; gap: 11px; padding: 9px 20px 9px 11px;
+    background: rgba(255,255,255,.94); backdrop-filter: blur(8px); border-radius: 999px;
+    box-shadow: 0 6px 26px rgba(0,0,0,.3);
   }
-  .logo .word { font-weight: 800; font-size: 24px; line-height: 1; transform: translateY(1px); }
-  .logo .word b { color: var(--brand); }
+  .logo svg { display: block; border-radius: 9px; }
+  .logo .word { font-weight: 800; font-size: 26px; line-height: 1; color: #1a1a1a; letter-spacing: .2px; }
+  .logo .word b { color: #1a1a1a; font-weight: 800; }
 
   .clock {
-    text-align: right; padding: 12px 22px; background: rgba(0,0,0,.36);
-    backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 6px 26px rgba(0,0,0,.4);
+    text-align: right; padding: 14px 24px 16px; background: rgba(0,0,0,.36);
+    backdrop-filter: blur(10px); border-radius: 22px; box-shadow: 0 6px 26px rgba(0,0,0,.4);
   }
   .clock .time {
     font-size: clamp(40px, 4.4vw, 66px); font-weight: 700;
-    font-variant-numeric: tabular-nums; line-height: 1;
+    font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: 1px;
+  }
+  .clock .dateline {
+    margin-top: 12px; display: flex; align-items: baseline; justify-content: flex-end;
+    gap: 12px; line-height: 1;
   }
   .clock .weekday {
-    margin-top: 10px; font-size: clamp(22px, 2.1vw, 34px); font-weight: 700;
-    line-height: 1; text-transform: capitalize; color: #fff;
+    font-size: clamp(18px, 1.8vw, 28px); font-weight: 700;
+    text-transform: capitalize; color: var(--brand); letter-spacing: .3px;
+  }
+  .clock .weekday::after {
+    content: ""; display: inline-block; width: 5px; height: 5px; margin-left: 12px;
+    border-radius: 50%; background: rgba(255,255,255,.4); vertical-align: middle;
   }
   .clock .date {
-    margin-top: 5px; font-size: clamp(14px, 1.3vw, 20px); color: var(--muted);
+    font-size: clamp(16px, 1.5vw, 24px); font-weight: 600; color: #fff;
+    font-variant-numeric: tabular-nums;
   }
 
   .route { margin: 0 var(--pad) calc(var(--pad) * .7); height: 4px; border-radius: 999px; background: rgba(255,255,255,.16); position: relative; }
@@ -110,16 +120,25 @@
   <div id="overlay" class="overlay-hidden">
     <div class="top">
       <div class="logo" id="logo">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 2C7.86 2 4.5 5.36 4.5 9.5c0 5.13 6.27 11.4 6.54 11.66a1.4 1.4 0 0 0 1.92 0c.27-.26 6.54-6.53 6.54-11.66C19.5 5.36 16.14 2 12 2Z" fill="#2DBE00"/>
-          <circle cx="12" cy="9.5" r="3" fill="#fff"/>
+        <svg width="38" height="38" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><clipPath id="sq"><rect x="2" y="2" width="44" height="44" rx="12"/></clipPath></defs>
+          <g clip-path="url(#sq)">
+            <rect x="0" y="0" width="48" height="48" fill="#ffffff"/>
+            <polygon points="0,0 48,0 48,13 0,16" fill="#F5A623"/>
+            <polygon points="0,19 48,16 48,38 0,41" fill="#3DAE36"/>
+            <polygon points="0,44 48,41 48,48 0,48" fill="#8DC63F"/>
+            <path d="M24 13 C18.5 13 14 17.3 14 22.5 C14 27 17.5 30.3 21.5 31.4 L21.5 36 C21.5 37.4 22.6 38.5 24 38.5 C25.4 38.5 26.5 37.4 26.5 36 L26.5 31.4 C30.5 30.3 34 27 34 22.5 C34 17.3 29.5 13 24 13 Z"
+                  fill="#1E88E5" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round"/>
+          </g>
         </svg>
         <span class="word">2<b>ГИС</b></span>
       </div>
       <div class="clock" id="clock">
         <div class="time">--:--</div>
-        <div class="weekday">&nbsp;</div>
-        <div class="date">&nbsp;</div>
+        <div class="dateline">
+          <span class="weekday">&nbsp;</span>
+          <span class="date">&nbsp;</span>
+        </div>
       </div>
     </div>
     <div class="route" id="route">
@@ -214,7 +233,7 @@
     const d = new Date(Date.now() + serverOffset);
     clockEl.querySelector('.time').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     clockEl.querySelector('.weekday').textContent = DAYS[d.getDay()];
-    clockEl.querySelector('.date').textContent = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+    clockEl.querySelector('.date').textContent = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
   }
   setInterval(tickClock, 1000);
 
